@@ -4,11 +4,11 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AppService } from './app.service';
-import { AuthModule } from './modules/auth/auth.module';
-import { AuthService } from './modules/auth/auth.service';
-import { JwtStrategy } from './modules/auth/strategies/jwt-auth.strategy';
-import { UserModule } from './modules/user/user.module';
-import { UserService } from './modules/user/user.service';
+import { AuthModule } from '../auth/auth.module';
+import { AuthService } from '../auth/auth.service';
+import { JwtStrategy } from '../auth/strategies/jwt-auth.strategy';
+import { UserModule } from '../user/user.module';
+import { UserService } from '../user/user.service';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { UserService } from './modules/user/user.service';
     }),
     AuthModule,
     UserModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule,
   ],
   controllers: [],
   providers: [AppService, JwtService, JwtStrategy, UserService, AuthService],
