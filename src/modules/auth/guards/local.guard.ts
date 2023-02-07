@@ -12,9 +12,7 @@ export class LocalAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const email = context.getArgByIndex(1).email;
     const password = context.getArgByIndex(1).password;
-    const isValidated = Boolean(
-      await this.authService.validateUser(email, password),
-    );
+    const isValidated = await this.authService.validateUser(email, password);
 
     if (!isValidated) {
       throw new UnauthorizedException();

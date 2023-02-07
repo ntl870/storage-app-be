@@ -9,10 +9,21 @@ type User {
   password: String!
 }
 
+type NewUserReturn {
+  name: String!
+  email: String!
+  accessToken: String!
+}
+
 type Query {
-  getUser: User!
+  getMe: User!
 }
 
 type Mutation {
   login(email: String!, password: String!): String!
+  signup(email: String!, password: String!, name: String!): NewUserReturn!
+  uploadFile(file: Upload!): String!
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload

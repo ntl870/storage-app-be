@@ -1,5 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Query, Resolver } from '@nestjs/graphql';
+import { CurrentUser } from 'src/decorators/CurrentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from './user.entity';
 import { UserService } from './user.service';
@@ -10,7 +11,7 @@ export class UserResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => User)
-  getUser() {
-    return this.userService.getOne('test@gmail.com');
+  getMe(@CurrentUser() user: User) {
+    return this.userService.getOneByID(user.ID);
   }
 }

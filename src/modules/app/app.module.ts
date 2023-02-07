@@ -9,6 +9,10 @@ import { AuthService } from '../auth/auth.service';
 import { JwtStrategy } from '../auth/strategies/jwt-auth.strategy';
 import { UserModule } from '../user/user.module';
 import { UserService } from '../user/user.service';
+import { FilesModule } from '../files/files.module';
+import { getEnvVar } from '../../utils/tools';
+import { EnvVar } from 'src/types';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -18,12 +22,14 @@ import { UserService } from '../user/user.service';
       autoSchemaFile: 'schema.graphql',
     }),
     JwtModule.register({
-      secret: 'ntlong',
+      secret: getEnvVar(EnvVar.JWT_SECRET),
       signOptions: { expiresIn: '1d' },
     }),
     AuthModule,
     UserModule,
     PassportModule,
+    FilesModule,
+    ConfigModule,
   ],
   controllers: [],
   providers: [AppService, JwtService, JwtStrategy, UserService, AuthService],
