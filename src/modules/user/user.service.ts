@@ -36,4 +36,9 @@ export class UserService {
     });
     return user;
   }
+
+  async getAllUsers(): Promise<User[]> {
+    const users = await this.userRepository.find();
+    return users;
+  }
 }

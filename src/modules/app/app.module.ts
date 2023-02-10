@@ -13,6 +13,8 @@ import { FilesModule } from '../files/files.module';
 import { getEnvVar } from '../../utils/tools';
 import { EnvVar } from 'src/types';
 import { ConfigModule } from '@nestjs/config';
+import { FoldersModule } from '@modules/folders/folders.module';
+import { StoragesModule } from '@modules/storages/storages.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { ConfigModule } from '@nestjs/config';
     PassportModule,
     FilesModule,
     ConfigModule,
+    FoldersModule,
+    StoragesModule,
   ],
   controllers: [],
   providers: [AppService, JwtService, JwtStrategy, UserService, AuthService],

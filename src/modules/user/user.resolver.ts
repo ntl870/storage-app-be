@@ -14,4 +14,9 @@ export class UserResolver {
   getMe(@CurrentUser() user: User) {
     return this.userService.getOneByID(user.ID);
   }
+
+  @Query(() => [User])
+  getAllUsers() {
+    return this.userService.getAllUsers();
+  }
 }

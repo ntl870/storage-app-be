@@ -2,6 +2,8 @@ import { User } from 'src/modules/user/user.entity';
 import { DataSource } from 'typeorm';
 import { getEnvVar } from '@utils/tools';
 import { EnvVar } from 'src/types';
+import { Folder } from '@modules/folders/folders.entity';
+import { File } from '@modules/files/files.entity';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
@@ -12,7 +14,7 @@ const AppDataSource = new DataSource({
   database: getEnvVar(EnvVar.DB_NAME),
   synchronize: true,
   logging: true,
-  entities: [User],
+  entities: [User, Folder, File],
   subscribers: [],
   migrations: [],
 });
@@ -20,6 +22,8 @@ const AppDataSource = new DataSource({
 export const getRepository = <T>(entity: any) => {
   return AppDataSource.getRepository<T>(entity);
 };
+
+export const createQueryRunner = () => AppDataSource.createQueryRunner();
 
 export const connectToDb = async () => {
   try {

@@ -9,6 +9,14 @@ type User {
   password: String!
 }
 
+type File {
+  ID: String!
+  name: String!
+  folder: String
+  url: String!
+  ownerID: String!
+}
+
 type NewUserReturn {
   name: String!
   email: String!
@@ -17,6 +25,7 @@ type NewUserReturn {
 
 type Query {
   getMe: User!
+  getAllUsers: [User!]!
 }
 
 type Mutation {
