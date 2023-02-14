@@ -1,3 +1,5 @@
+import { CurrentUser } from '@decorators/CurrentUser';
+import { User } from '@modules/user/user.entity';
 import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { AuthService } from './auth.service';

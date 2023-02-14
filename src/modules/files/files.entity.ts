@@ -15,7 +15,7 @@ import {
 export class File {
   @Field()
   @PrimaryGeneratedColumn()
-  ID: string;
+  ID: number;
 
   @Field()
   @Column()
@@ -31,6 +31,6 @@ export class File {
   url: string;
 
   @Field()
-  @Column()
+  @Column({ nullable: true })
   ownerID: string;
 }

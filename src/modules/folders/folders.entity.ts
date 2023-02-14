@@ -3,6 +3,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -20,8 +21,22 @@ export class Folder {
   @Column()
   name: string;
 
+  @Field(() => Folder, { nullable: true })
+  @ManyToOne(() => Folder, (folder) => folder.ID)
+  @JoinColumn()
+  rootFolder: Folder;
+
   @Field(() => [File], { nullable: true })
   @OneToMany(() => File, (file) => file.folder)
   @JoinColumn()
   files: File[];
+
+  @Field(() => [Folder], { nullable: true })
+  @OneToMany(() => Folder, (folder) => folder)
+  @JoinColumn()
+  folders: Folder[];
+
+  @Field()
+  @Column()
+  ownerID: string;
 }

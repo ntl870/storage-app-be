@@ -14,7 +14,6 @@ import { getEnvVar } from '../../utils/tools';
 import { EnvVar } from 'src/types';
 import { ConfigModule } from '@nestjs/config';
 import { FoldersModule } from '@modules/folders/folders.module';
-import { StoragesModule } from '@modules/storages/storages.module';
 
 @Module({
   imports: [
@@ -33,9 +32,8 @@ import { StoragesModule } from '@modules/storages/storages.module';
     FilesModule,
     ConfigModule,
     FoldersModule,
-    StoragesModule,
   ],
   controllers: [],
-  providers: [AppService, JwtService, JwtStrategy, UserService, AuthService],
+  providers: [AppService, JwtService, JwtStrategy],
 })
 export class AppModule {}

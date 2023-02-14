@@ -1,3 +1,4 @@
+import { FoldersService } from '@modules/folders/folders.service';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { comparePassword } from 'src/utils/tools';
@@ -8,6 +9,7 @@ import { NewUserInput, SignInInput } from './auth.types';
 export class AuthService {
   constructor(
     private usersService: UserService,
+    private folderService: FoldersService,
     private jwtService: JwtService,
   ) {}
 

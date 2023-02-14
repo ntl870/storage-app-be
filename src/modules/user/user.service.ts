@@ -4,12 +4,13 @@ import { Repository } from 'typeorm';
 import { NewUserInput } from '../auth/auth.types';
 import { User } from './user.entity';
 import { hashPassword } from 'src/utils/tools';
+import { FoldersService } from '@modules/folders/folders.service';
 
 @Injectable()
 export class UserService {
   userRepository: Repository<User>;
 
-  constructor() {
+  constructor(private readonly folderService: FoldersService) {
     this.userRepository = getRepository(User);
   }
 
@@ -18,7 +19,16 @@ export class UserService {
       ...input,
       password: hashPassword(input.password),
     });
-    return newUser;
+    const rootFolder = await this.folderService.createFolder(
+      Number(newUser.ID),
+      {
+        rootFolderID: null,
+        name: `${newUser.ID}-root`,
+      },
+    );
+    newUser.rootFolder = rootFolder;
+
+    return await this.userRepository.save(newUser);
   }
 
   async getOne(email: string): Promise<User> {
@@ -30,15 +40,18 @@ export class UserService {
     return user;
   }
 
-  async getOneByID(ID: string): Promise<User> {
-    const user = await this.userRepository.findOneBy({
-      ID,
-    });
-    return user;
-  }
-
   async getAllUsers(): Promise<User[]> {
     const users = await this.userRepository.find();
     return users;
+  }
+
+  async getOneByID(userID: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: {
+        ID: userID,
+      },
+      relations: ['rootFolder'],
+    });
+    return user;
   }
 }

@@ -1,7 +1,6 @@
 import { Controller, Get, Param, Res } from '@nestjs/common';
 import { join } from 'path';
 import { Response } from 'express';
-
 @Controller('files')
 export class FilesController {
   @Get('/:filepath')
