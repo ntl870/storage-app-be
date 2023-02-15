@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Folder } from './folders.entity';
 import { NewFolderInput, UploadFolderInput } from './folders.types';
 import { File } from '@modules/files/files.entity';
-import { createWriteStream, existsSync, mkdirSync } from 'fs';
+import { createWriteStream, mkdirSync } from 'fs';
 import { FilesService } from '@modules/files/files.service';
 
 @Injectable()
@@ -41,17 +41,20 @@ export class FoldersService {
     });
   }
 
-  async handleSaveFolder(userID: number, input: UploadFolderInput) {
-    // const rootFolder = await this.folderRepository.findOne({
-    //   where: {
-    //     ID: input.rootFolderID,
-    //   },
-    // });
-
-    // const topLevelFolder = await this.createFolder(userID, {
-    //   name: input.folder.name,
-    //   rootFolderID: input.rootFolderID,
-    // });
+  async handleSaveFolder(
+    userID: number,
+    input: UploadFolderInput,
+    parentFolder?: Folder,
+  ) {
+    let rootFolder: Folder;
+    if (!parentFolder) {
+      rootFolder = await this.createFolder(userID, {
+        name: input.folder.name,
+        rootFolderID: input.rootFolderID,
+      });
+    } else {
+      rootFolder = parentFolder;
+    }
 
     await Promise.all(
       input.folder.files.map(async (file) => {
@@ -59,12 +62,6 @@ export class FoldersService {
 
         const newFile = new File();
         try {
-          const rootFolder = await this.folderRepository.findOne({
-            where: {
-              ID: input.rootFolderID,
-            },
-          });
-
           const path = `${rootFolder.path}/${filename}`;
 
           await new Promise((resolve, reject) =>
@@ -91,12 +88,17 @@ export class FoldersService {
         input.folder.folders.map(async (folder) => {
           const newFolder = await this.createFolder(userID, {
             name: folder.name,
-            rootFolderID: input.rootFolderID,
+            rootFolderID: rootFolder.ID,
           });
-          await this.handleSaveFolder(userID, {
-            folder: folder,
-            rootFolderID: newFolder.ID,
-          });
+
+          await this.handleSaveFolder(
+            userID,
+            {
+              folder,
+              rootFolderID: newFolder.ID,
+            },
+            newFolder,
+          );
         }),
       );
     }

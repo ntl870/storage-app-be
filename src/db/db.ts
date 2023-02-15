@@ -13,7 +13,7 @@ const AppDataSource = new DataSource({
   password: getEnvVar(EnvVar.DB_PASSWORD),
   database: getEnvVar(EnvVar.DB_NAME),
   synchronize: true,
-  logging: true,
+  logging: false,
   entities: [User, Folder, File],
   subscribers: [],
   migrations: [],

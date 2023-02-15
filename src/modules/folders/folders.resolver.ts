@@ -6,7 +6,6 @@ import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { Folder } from './folders.entity';
 import { FoldersService } from './folders.service';
 import { NewFolderInput, UploadFolderInput } from './folders.types';
-import { File } from '@modules/files/files.entity';
 
 @Resolver()
 export class FoldersResolver {
