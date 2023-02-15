@@ -39,4 +39,8 @@ export class Folder {
   @Field()
   @Column()
   ownerID: string;
+
+  @Field(() => String)
+  @Column({ nullable: true })
+  path?: string;
 }

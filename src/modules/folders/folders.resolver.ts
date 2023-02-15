@@ -6,7 +6,6 @@ import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { Folder } from './folders.entity';
 import { FoldersService } from './folders.service';
 import { NewFolderInput, UploadFolderInput } from './folders.types';
-import { GraphQLUpload, Upload } from 'graphql-upload';
 import { File } from '@modules/files/files.entity';
 
 @Resolver()
@@ -23,10 +22,10 @@ export class FoldersResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Mutation(() => [File])
+  @Mutation(() => String)
   async uploadFolder(
     @CurrentUser() user: User,
-    @Args('folder', { type: () => [GraphQLUpload] }) input: UploadFolderInput,
+    @Args('input', { type: () => UploadFolderInput }) input: UploadFolderInput,
   ) {
     return await this.folderService.uploadFolder(Number(user.ID), input);
   }

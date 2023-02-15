@@ -5,7 +5,7 @@ import { NewUserInput } from '../auth/auth.types';
 import { User } from './user.entity';
 import { hashPassword } from 'src/utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
-
+import * as fs from 'fs';
 @Injectable()
 export class UserService {
   userRepository: Repository<User>;
@@ -19,6 +19,7 @@ export class UserService {
       ...input,
       password: hashPassword(input.password),
     });
+
     const rootFolder = await this.folderService.createFolder(
       Number(newUser.ID),
       {
@@ -26,6 +27,11 @@ export class UserService {
         name: `${newUser.ID}-root`,
       },
     );
+
+    const dir = `${process.cwd()}/files/${rootFolder.ID}`;
+    fs.mkdirSync(dir, {
+      recursive: true,
+    });
     newUser.rootFolder = rootFolder;
 
     return await this.userRepository.save(newUser);

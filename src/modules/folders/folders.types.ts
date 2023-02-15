@@ -10,16 +10,21 @@ export class NewFolderInput {
   rootFolderID?: string;
 }
 
-interface UploadFolder {
+@InputType()
+class UploadFolder {
+  @Field(() => [GraphQLUpload], { nullable: true })
   files: Upload[];
-  folders: {
-    [name: string]: UploadFolder;
-  };
+
+  @Field(() => [UploadFolder], { nullable: true })
+  folders: UploadFolder[];
+
+  @Field(() => String)
+  name: string;
 }
 
 @InputType()
 export class UploadFolderInput {
-  @Field(() => [NewFolderInput])
+  @Field(() => UploadFolder)
   folder: UploadFolder;
 
   @Field(() => String)

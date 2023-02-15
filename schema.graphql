@@ -2,20 +2,21 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type File {
-  ID: Float!
-  name: String!
-  folder: String
-  url: String!
-  ownerID: String!
-}
-
 type Folder {
   ID: String!
   name: String!
   rootFolder: Folder
   files: [File!]
   folders: [Folder!]
+  ownerID: String!
+  path: String!
+}
+
+type File {
+  ID: Float!
+  name: String!
+  folder: String
+  url: String!
   ownerID: String!
 }
 
@@ -43,13 +44,24 @@ type Mutation {
   login(email: String!, password: String!): String!
   signup(email: String!, password: String!, name: String!): NewUserReturn!
   createFolder(input: NewFolderInput!): Folder!
-  uploadFolder(folder: [Upload!]!): [File!]!
-  uploadFile(file: Upload!): File!
+  uploadFolder(input: UploadFolderInput!): String!
+  uploadFile(file: Upload!, folderID: String!): File!
 }
 
 input NewFolderInput {
   name: String!
   rootFolderID: String
+}
+
+input UploadFolderInput {
+  folder: UploadFolder!
+  rootFolderID: String!
+}
+
+input UploadFolder {
+  files: [Upload!]
+  folders: [UploadFolder!]
+  name: String!
 }
 
 """The `Upload` scalar type represents a file upload."""

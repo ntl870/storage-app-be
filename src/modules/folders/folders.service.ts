@@ -3,11 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Folder } from './folders.entity';
 import { NewFolderInput, UploadFolderInput } from './folders.types';
-import { Upload } from 'graphql-upload';
+import { File } from '@modules/files/files.entity';
+import { createWriteStream, existsSync, mkdirSync } from 'fs';
+import { FilesService } from '@modules/files/files.service';
+
 @Injectable()
 export class FoldersService {
   folderRepository: Repository<Folder>;
-  constructor() {
+  constructor(private readonly fileService: FilesService) {
     this.folderRepository = getRepository(Folder);
   }
   async createFolder(userID: number, input: NewFolderInput): Promise<Folder> {
@@ -24,11 +27,95 @@ export class FoldersService {
       ownerID: String(userID),
       rootFolder: rootFolder ?? null,
     });
+    const path = !!rootFolder
+      ? `${rootFolder.path}/${newFolder.name}`
+      : `/files/${newFolder.ID}`;
 
-    return newFolder;
+    mkdirSync(`${process.cwd()}${path}`, {
+      recursive: true,
+    });
+
+    return await this.folderRepository.save({
+      ...newFolder,
+      path: path,
+    });
   }
 
-  async uploadFolder(userID: number, folders: UploadFolderInput) {
-    return [];
+  async handleSaveFolder(userID: number, input: UploadFolderInput) {
+    // const rootFolder = await this.folderRepository.findOne({
+    //   where: {
+    //     ID: input.rootFolderID,
+    //   },
+    // });
+
+    // const topLevelFolder = await this.createFolder(userID, {
+    //   name: input.folder.name,
+    //   rootFolderID: input.rootFolderID,
+    // });
+
+    await Promise.all(
+      input.folder.files.map(async (file) => {
+        const { createReadStream, filename } = await file;
+
+        const newFile = new File();
+        try {
+          const rootFolder = await this.folderRepository.findOne({
+            where: {
+              ID: input.rootFolderID,
+            },
+          });
+
+          const path = `${rootFolder.path}/${filename}`;
+
+          await new Promise((resolve, reject) =>
+            createReadStream()
+              .pipe(createWriteStream(`${process.cwd()}/${path}`))
+              .on('finish', () => resolve(path))
+              .on('error', reject),
+          );
+
+          newFile.name = filename;
+          newFile.folder = null;
+          newFile.url = path as string;
+          newFile.ownerID = String(userID);
+          await this.fileService.create(newFile);
+        } catch (err) {
+          throw err;
+        }
+
+        return newFile;
+      }),
+    );
+    if (input.folder.folders.length > 0) {
+      await Promise.all(
+        input.folder.folders.map(async (folder) => {
+          const newFolder = await this.createFolder(userID, {
+            name: folder.name,
+            rootFolderID: input.rootFolderID,
+          });
+          await this.handleSaveFolder(userID, {
+            folder: folder,
+            rootFolderID: newFolder.ID,
+          });
+        }),
+      );
+    }
+  }
+
+  async uploadFolder(userID: number, input: UploadFolderInput) {
+    try {
+      await this.handleSaveFolder(userID, input);
+      return 'Upload folder successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getFolderByID(folderID: number): Promise<Folder> {
+    return await this.folderRepository.findOne({
+      where: {
+        ID: String(folderID),
+      },
+    });
   }
 }

@@ -1,6 +1,6 @@
-import { createQueryRunner } from '@db/db';
 import { CurrentUser } from '@decorators/CurrentUser';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt.guard';
+import { FoldersService } from '@modules/folders/folders.service';
 import { User } from '@modules/user/user.entity';
 import { UseGuards } from '@nestjs/common';
 import { Resolver, Args, Mutation } from '@nestjs/graphql';
@@ -10,20 +10,28 @@ import { File } from './files.entity';
 import { FilesService } from './files.service';
 @Resolver()
 export class FilesResolver {
-  constructor(private readonly filesService: FilesService) {}
+  constructor(
+    private readonly filesService: FilesService,
+    private readonly folderService: FoldersService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => File)
   async uploadFile(
     @Args({ name: 'file', type: () => GraphQLUpload })
     file: Upload,
-    @CurrentUser() user: User,
+    @Args({ name: 'folderID', type: () => String })
+    folderID: string,
+    @CurrentUser()
+    user: User,
   ) {
     const { createReadStream, filename } = await file;
 
     const newFile = new File();
     try {
-      const path = `/files/${new Date().getTime()}_${filename}`;
+      const folder = await this.folderService.getFolderByID(Number(folderID));
+
+      const path = `${folder.path}/${filename}`;
       await new Promise((resolve, reject) =>
         createReadStream()
           .pipe(createWriteStream(process.cwd() + path))
