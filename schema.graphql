@@ -17,6 +17,7 @@ type File {
   name: String!
   folder: String
   url: String!
+  fileType: String!
   ownerID: String!
 }
 
@@ -38,6 +39,8 @@ type Query {
   getMe: User!
   getAllUsers: [User!]!
   getUserByID(ID: String!): User!
+  getUserFolders: [Folder!]!
+  getUserFiles: [File!]!
 }
 
 type Mutation {

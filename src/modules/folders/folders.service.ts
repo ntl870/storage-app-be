@@ -72,7 +72,7 @@ export class FoldersService {
           );
 
           newFile.name = filename;
-          newFile.folder = null;
+          newFile.folder = rootFolder.ID;
           newFile.url = path as string;
           newFile.ownerID = String(userID);
           await this.fileService.create(newFile);
@@ -118,6 +118,15 @@ export class FoldersService {
       where: {
         ID: String(folderID),
       },
+    });
+  }
+
+  async getUserFolders(userID: string): Promise<Folder[]> {
+    return await this.folderRepository.find({
+      where: {
+        ownerID: userID,
+      },
+      relations: ['files'],
     });
   }
 }

@@ -22,13 +22,17 @@ export class File {
   name: string;
 
   @Field(() => String, { nullable: true })
-  @ManyToOne(() => Folder, (folder) => folder.files)
+  @ManyToOne(() => Folder, (folder) => folder.ID)
   @JoinColumn()
   folder: string;
 
   @Field()
   @Column()
   url: string;
+
+  @Field(() => String)
+  @Column({ name: 'fileType', nullable: true })
+  fileType: string;
 
   @Field()
   @Column({ nullable: true })

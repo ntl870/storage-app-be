@@ -12,7 +12,9 @@ async function bootstrap() {
     await connectToDb();
 
     // initialize graphql-upload middleware
-    app.use(graphqlUploadExpress());
+    app.use(
+      graphqlUploadExpress({ maxFileSize: 100000000000000, maxFiles: 10000 }),
+    );
 
     await app.listen(3000);
   } catch (err) {
