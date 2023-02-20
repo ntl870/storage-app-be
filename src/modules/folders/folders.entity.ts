@@ -32,9 +32,9 @@ export class Folder {
   files: File[];
 
   @Field(() => [Folder], { nullable: true })
-  @OneToMany(() => Folder, (folder) => folder)
+  @OneToMany(() => Folder, (folder) => folder.rootFolder)
   @JoinColumn()
-  folders: Folder[];
+  subFolders: Folder[];
 
   @Field()
   @Column()

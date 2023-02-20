@@ -21,10 +21,10 @@ export class File {
   @Column()
   name: string;
 
-  @Field(() => String, { nullable: true })
-  @ManyToOne(() => Folder, (folder) => folder.ID)
+  @Field(() => Folder, { nullable: true })
+  @ManyToOne(() => Folder, (folder) => folder.files)
   @JoinColumn()
-  folder: string;
+  folder: Folder;
 
   @Field()
   @Column()

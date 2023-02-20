@@ -30,23 +30,12 @@ export class FilesResolver {
 
     const newFile = new File();
     try {
-      const folder = await this.folderService.getFolderByID(Number(folderID));
+      const folder = await this.folderService.getFolderByID(folderID);
 
-      const isDupplicated = !!(await this.filesService.findFileByOptions({
-        folder: folder.ID,
-        name: filename,
-      }));
+      const path = `${folder.path}/${filename}`;
 
-      const fileNameWithoutExtension = filename.split('.')[0];
-      const extension = filename.split('.')[1];
-      const generatedName = `${fileNameWithoutExtension}_${Date.now()}.${extension}`;
-
-      const path = isDupplicated
-        ? `${folder.path}/${generatedName}`
-        : `${folder.path}/${filename}`;
-
-      newFile.name = generatedName;
-      newFile.folder = folderID ?? null;
+      newFile.name = filename;
+      newFile.folder = folder ?? null;
       newFile.url = path;
       newFile.ownerID = user.ID;
       newFile.fileType = getFileType(path);

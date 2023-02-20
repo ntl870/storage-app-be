@@ -21,11 +21,11 @@ export class FoldersService {
           },
         })
       : null;
-
+    console.log(input);
     const newFolder = await this.folderRepository.save({
       name: input.name,
       ownerID: String(userID),
-      rootFolder: rootFolder ?? null,
+      rootFolder: rootFolder,
     });
     const path = !!rootFolder
       ? `${rootFolder.path}/${newFolder.name}`
@@ -72,7 +72,7 @@ export class FoldersService {
           );
 
           newFile.name = filename;
-          newFile.folder = rootFolder.ID;
+          newFile.folder = rootFolder;
           newFile.url = path as string;
           newFile.ownerID = String(userID);
           await this.fileService.create(newFile);
@@ -113,20 +113,23 @@ export class FoldersService {
     }
   }
 
-  async getFolderByID(folderID: number): Promise<Folder> {
+  async getFolderByID(folderID: string): Promise<Folder> {
     return await this.folderRepository.findOne({
       where: {
-        ID: String(folderID),
+        ID: folderID,
       },
     });
   }
 
-  async getUserFolders(userID: string): Promise<Folder[]> {
+  async getUserFolders(userID: string, folderID: string): Promise<Folder[]> {
     return await this.folderRepository.find({
       where: {
         ownerID: userID,
+        rootFolder: {
+          ID: folderID,
+        },
       },
-      relations: ['files'],
+      relations: ['files', 'subFolders'],
     });
   }
 }

@@ -36,8 +36,11 @@ export class UserResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [Folder])
-  async getUserFolders(@CurrentUser() user: User) {
-    return await this.folderService.getUserFolders(user.ID);
+  async getUserFolders(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+  ) {
+    return await this.folderService.getUserFolders(user.ID, folderID);
   }
 
   @UseGuards(JwtAuthGuard)

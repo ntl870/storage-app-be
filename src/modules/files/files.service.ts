@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { File } from '@modules/files/files.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { getRepository } from '@db/db';
-import { getFileType } from '@utils/tools';
 
 @Injectable()
 export class FilesService {

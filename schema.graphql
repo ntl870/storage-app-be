@@ -7,7 +7,7 @@ type Folder {
   name: String!
   rootFolder: Folder
   files: [File!]
-  folders: [Folder!]
+  subFolders: [Folder!]
   ownerID: String!
   path: String!
 }
@@ -15,7 +15,7 @@ type Folder {
 type File {
   ID: Float!
   name: String!
-  folder: String
+  folder: Folder
   url: String!
   fileType: String!
   ownerID: String!
@@ -39,7 +39,7 @@ type Query {
   getMe: User!
   getAllUsers: [User!]!
   getUserByID(ID: String!): User!
-  getUserFolders: [Folder!]!
+  getUserFolders(folderID: String!): [Folder!]!
   getUserFiles: [File!]!
 }
 
