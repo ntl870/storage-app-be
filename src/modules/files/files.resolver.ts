@@ -3,9 +3,7 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt.guard';
 import { FoldersService } from '@modules/folders/folders.service';
 import { User } from '@modules/user/user.entity';
 import { UseGuards } from '@nestjs/common';
-import { Resolver, Args, Mutation } from '@nestjs/graphql';
-import { getFileType } from '@utils/tools';
-import { createWriteStream } from 'fs';
+import { Resolver, Args, Mutation, Query } from '@nestjs/graphql';
 import { GraphQLUpload, Upload } from 'graphql-upload';
 import { File } from './files.entity';
 import { FilesService } from './files.service';
@@ -26,30 +24,13 @@ export class FilesResolver {
     @CurrentUser()
     user: User,
   ) {
-    const { createReadStream, filename } = await file;
+    const folder = await this.folderService.getFolderByID(folderID);
+    return await this.filesService.saveFileToStorage(file, user.ID, folder);
+  }
 
-    const newFile = new File();
-    try {
-      const folder = await this.folderService.getFolderByID(folderID);
-
-      const path = `${folder.path}/${filename}`;
-
-      newFile.name = filename;
-      newFile.folder = folder ?? null;
-      newFile.url = path;
-      newFile.ownerID = user.ID;
-      newFile.fileType = getFileType(path);
-
-      await new Promise((resolve, reject) =>
-        createReadStream()
-          .pipe(createWriteStream(process.cwd() + path))
-          .on('finish', () => resolve(path))
-          .on('error', reject),
-      );
-
-      return await this.filesService.create(newFile);
-    } catch (err) {
-      throw err;
-    }
+  @UseGuards(JwtAuthGuard)
+  @Query(() => File)
+  async getFileByID(@Args('ID') ID: string) {
+    return this.filesService.getFileByID(ID);
   }
 }

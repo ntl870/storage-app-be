@@ -3,8 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Folder } from './folders.entity';
 import { NewFolderInput, UploadFolderInput } from './folders.types';
-import { File } from '@modules/files/files.entity';
-import { createWriteStream, mkdirSync } from 'fs';
+import { mkdirSync } from 'fs';
 import { FilesService } from '@modules/files/files.service';
 
 @Injectable()
@@ -13,7 +12,7 @@ export class FoldersService {
   constructor(private readonly fileService: FilesService) {
     this.folderRepository = getRepository(Folder);
   }
-  async createFolder(userID: number, input: NewFolderInput): Promise<Folder> {
+  async createFolder(userID: string, input: NewFolderInput): Promise<Folder> {
     const rootFolder = input.rootFolderID
       ? await this.folderRepository.findOne({
           where: {
@@ -21,7 +20,7 @@ export class FoldersService {
           },
         })
       : null;
-    console.log(input);
+
     const newFolder = await this.folderRepository.save({
       name: input.name,
       ownerID: String(userID),
@@ -42,7 +41,7 @@ export class FoldersService {
   }
 
   async handleSaveFolder(
-    userID: number,
+    userID: string,
     input: UploadFolderInput,
     parentFolder?: Folder,
   ) {
@@ -58,31 +57,14 @@ export class FoldersService {
 
     await Promise.all(
       input.folder.files.map(async (file) => {
-        const { createReadStream, filename } = await file;
-
-        const newFile = new File();
-        try {
-          const path = `${rootFolder.path}/${filename}`;
-
-          await new Promise((resolve, reject) =>
-            createReadStream()
-              .pipe(createWriteStream(`${process.cwd()}/${path}`))
-              .on('finish', () => resolve(path))
-              .on('error', reject),
-          );
-
-          newFile.name = filename;
-          newFile.folder = rootFolder;
-          newFile.url = path as string;
-          newFile.ownerID = String(userID);
-          await this.fileService.create(newFile);
-        } catch (err) {
-          throw err;
-        }
-
-        return newFile;
+        return await this.fileService.saveFileToStorage(
+          file,
+          userID,
+          rootFolder,
+        );
       }),
     );
+
     if (input.folder.folders.length > 0) {
       await Promise.all(
         input.folder.folders.map(async (folder) => {
@@ -104,7 +86,7 @@ export class FoldersService {
     }
   }
 
-  async uploadFolder(userID: number, input: UploadFolderInput) {
+  async uploadFolder(userID: string, input: UploadFolderInput) {
     try {
       await this.handleSaveFolder(userID, input);
       return 'Upload folder successfully';

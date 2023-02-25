@@ -17,7 +17,7 @@ export class FoldersResolver {
     @CurrentUser() user: User,
     @Args('input') input: NewFolderInput,
   ): Promise<Folder> {
-    return await this.folderService.createFolder(Number(user.ID), input);
+    return await this.folderService.createFolder(user.ID, input);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -26,6 +26,6 @@ export class FoldersResolver {
     @CurrentUser() user: User,
     @Args('input', { type: () => UploadFolderInput }) input: UploadFolderInput,
   ) {
-    return await this.folderService.uploadFolder(Number(user.ID), input);
+    return await this.folderService.uploadFolder(user.ID, input);
   }
 }

@@ -1,6 +1,7 @@
 import { Folder } from '@modules/folders/folders.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
 import {
+  BaseEntity,
   Column,
   Entity,
   JoinColumn,
@@ -12,7 +13,7 @@ import {
 @Entity({
   name: 'users',
 })
-export class User {
+export class User extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   ID: string;

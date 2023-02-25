@@ -20,13 +20,10 @@ export class UserService {
       password: hashPassword(input.password),
     });
 
-    const rootFolder = await this.folderService.createFolder(
-      Number(newUser.ID),
-      {
-        rootFolderID: null,
-        name: `${newUser.ID}-root`,
-      },
-    );
+    const rootFolder = await this.folderService.createFolder(newUser.ID, {
+      rootFolderID: null,
+      name: `${newUser.ID}-root`,
+    });
 
     const dir = `${process.cwd()}/files/${rootFolder.ID}`;
     fs.mkdirSync(dir, {

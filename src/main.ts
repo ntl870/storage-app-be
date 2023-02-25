@@ -16,7 +16,7 @@ async function bootstrap() {
       graphqlUploadExpress({ maxFileSize: 100000000000000, maxFiles: 10000 }),
     );
 
-    await app.listen(3000);
+    await app.listen(8000);
   } catch (err) {
     throw new Error(err);
   }

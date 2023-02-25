@@ -41,6 +41,7 @@ type Query {
   getUserByID(ID: String!): User!
   getUserFolders(folderID: String!): [Folder!]!
   getUserFiles: [File!]!
+  getFileByID(ID: String!): File!
 }
 
 type Mutation {
