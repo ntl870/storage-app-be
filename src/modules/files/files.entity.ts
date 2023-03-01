@@ -32,7 +32,7 @@ export class File extends BaseEntity {
   url: string;
 
   @Field(() => String)
-  @Column({ name: 'fileType', nullable: true })
+  @Column({ name: 'fileType' })
   fileType: string;
 
   @Field()

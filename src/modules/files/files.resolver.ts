@@ -33,4 +33,10 @@ export class FilesResolver {
   async getFileByID(@Args('ID') ID: string) {
     return this.filesService.getFileByID(ID);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [File])
+  async getFilesByFolder(@Args('folderID') folderID: string) {
+    return this.filesService.getFilesOfFolder(folderID);
+  }
 }

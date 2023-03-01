@@ -79,4 +79,19 @@ export class FilesService {
       throw err;
     }
   }
+
+  async getFilesOfFolder(folderID: string) {
+    try {
+      const files = await this.fileRepository.find({
+        where: {
+          folder: {
+            ID: folderID,
+          },
+        },
+      });
+      return files;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
