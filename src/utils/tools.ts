@@ -1,4 +1,5 @@
 import { hashSync, compareSync } from 'bcrypt';
+import { unlinkSync } from 'fs';
 import { EnvVar } from 'src/types';
 
 export const hashPassword = (password: string, salt = 10) =>
@@ -68,4 +69,8 @@ export const getFileType = (url: string) => {
     default:
       return 'unknown';
   }
+};
+
+export const deleteFile = (path: string) => {
+  unlinkSync(path);
 };

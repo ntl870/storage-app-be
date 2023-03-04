@@ -3,8 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Folder } from './folders.entity';
 import { NewFolderInput, UploadFolderInput } from './folders.types';
-import { mkdirSync } from 'fs';
+import { createWriteStream, mkdirSync } from 'fs';
 import { FilesService } from '@modules/files/files.service';
+import * as archiver from 'archiver';
+import { Response } from 'express';
+import { deleteFile } from '@utils/tools';
 
 @Injectable()
 export class FoldersService {
@@ -113,5 +116,34 @@ export class FoldersService {
       },
       relations: ['files', 'subFolders'],
     });
+  }
+
+  async getZippedFolder(res: Response, folderID: string) {
+    try {
+      const folder = await this.getFolderByID(folderID);
+      const sourceDir = process.cwd() + folder.path;
+      const zipFilePath = `${sourceDir}.zip`;
+      const output = createWriteStream(sourceDir + '.zip');
+      // create an archiver object to generate the zip file
+      const archive = archiver('zip', {
+        zlib: { level: 9 }, // set the compression level
+      });
+
+      // listen for errors on the output stream
+      await new Promise((resolve, reject) => {
+        archive
+          .directory(sourceDir, false)
+          .on('error', (err) => reject(err))
+          .pipe(output);
+
+        output.on('close', () => resolve('close'));
+        archive.finalize();
+      });
+      res.download(zipFilePath, folder.name + '.zip', () => {
+        deleteFile(zipFilePath);
+      });
+    } catch (err) {
+      throw err;
+    }
   }
 }
