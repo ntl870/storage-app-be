@@ -23,17 +23,23 @@ export class Folder extends BaseEntity {
   name: string;
 
   @Field(() => Folder, { nullable: true })
-  @ManyToOne(() => Folder, (folder) => folder.ID)
+  @ManyToOne(() => Folder, (folder) => folder.ID, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   rootFolder: Folder;
 
   @Field(() => [File], { nullable: true })
-  @OneToMany(() => File, (file) => file.folder)
+  @OneToMany(() => File, (file) => file.folder, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   files: File[];
 
   @Field(() => [Folder], { nullable: true })
-  @OneToMany(() => Folder, (folder) => folder.rootFolder)
+  @OneToMany(() => Folder, (folder) => folder.rootFolder, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   subFolders: Folder[];
 
@@ -44,4 +50,8 @@ export class Folder extends BaseEntity {
   @Field(() => String)
   @Column({ nullable: true })
   path?: string;
+
+  @Field(() => Boolean)
+  @Column({ default: false })
+  isTrash: boolean;
 }

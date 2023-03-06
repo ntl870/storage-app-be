@@ -39,4 +39,28 @@ export class FilesResolver {
   async getFilesByFolder(@Args('folderID') folderID: string) {
     return this.filesService.getFilesOfFolder(folderID);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [File])
+  async getUserTrashFiles(@CurrentUser() user: User) {
+    return this.filesService.getTrashFiles(user.ID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => File)
+  async moveFileToTrash(@Args('fileID') fileID: string) {
+    return this.filesService.moveFileToTrash(fileID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => File)
+  async restoreFileFromTrash(@Args('fileID') fileID: string) {
+    return this.filesService.moveFileOutOfTrash(fileID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async deleteFile(@Args('fileID') fileID: string) {
+    return this.filesService.deleteFileForever(fileID);
+  }
 }

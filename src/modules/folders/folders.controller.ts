@@ -11,6 +11,6 @@ export class FoldersController {
     @Res() res: Response,
     @Param('folderID') folderID: string,
   ) {
-    await this.folderService.getZippedFolder(res, folderID);
+    await this.folderService.downloadFolder(res, folderID);
   }
 }

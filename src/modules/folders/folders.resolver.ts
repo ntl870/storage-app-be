@@ -2,7 +2,7 @@ import { CurrentUser } from '@decorators/CurrentUser';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt.guard';
 import { User } from '@modules/user/user.entity';
 import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Folder } from './folders.entity';
 import { FoldersService } from './folders.service';
 import { NewFolderInput, UploadFolderInput } from './folders.types';
@@ -27,5 +27,29 @@ export class FoldersResolver {
     @Args('input', { type: () => UploadFolderInput }) input: UploadFolderInput,
   ) {
     return await this.folderService.uploadFolder(user.ID, input);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async moveFolderToTrash(@Args('folderID') folderID: string) {
+    return await this.folderService.moveFolderToTrash(folderID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [Folder])
+  async getUserTrashFolder(@CurrentUser() user: User) {
+    return await this.folderService.getTrashFolder(user.ID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async moveFolderOutOfTrash(@Args('folderID') folderID: string) {
+    return await this.folderService.moveFolderOutOfTrash(folderID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async deleteFolder(@Args('folderID') folderID: string) {
+    return await this.folderService.deleteFolderForever(folderID);
   }
 }

@@ -10,15 +10,17 @@ type Folder {
   subFolders: [Folder!]
   ownerID: String!
   path: String!
+  isTrash: Boolean!
 }
 
 type File {
-  ID: Float!
+  ID: String!
   name: String!
   folder: Folder
   url: String!
   fileType: String!
   ownerID: String!
+  isTrash: Boolean!
 }
 
 type User {
@@ -41,8 +43,10 @@ type Query {
   getUserByID(ID: String!): User!
   getUserFolders(folderID: String!): [Folder!]!
   getUserFiles: [File!]!
+  getUserTrashFolder: [Folder!]!
   getFileByID(ID: String!): File!
   getFilesByFolder(folderID: String!): [File!]!
+  getUserTrashFiles: [File!]!
 }
 
 type Mutation {
@@ -50,7 +54,13 @@ type Mutation {
   signup(email: String!, password: String!, name: String!): NewUserReturn!
   createFolder(input: NewFolderInput!): Folder!
   uploadFolder(input: UploadFolderInput!): String!
+  moveFolderToTrash(folderID: String!): String!
+  moveFolderOutOfTrash(folderID: String!): String!
+  deleteFolder(folderID: String!): String!
   uploadFile(file: Upload!, folderID: String!): File!
+  moveFileToTrash(fileID: String!): File!
+  restoreFileFromTrash(fileID: String!): File!
+  deleteFile(fileID: String!): String!
 }
 
 input NewFolderInput {

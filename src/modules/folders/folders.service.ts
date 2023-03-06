@@ -7,7 +7,7 @@ import { createWriteStream, mkdirSync } from 'fs';
 import { FilesService } from '@modules/files/files.service';
 import * as archiver from 'archiver';
 import { Response } from 'express';
-import { deleteFile } from '@utils/tools';
+import { deleteFile, deleteFolder } from '@utils/tools';
 
 @Injectable()
 export class FoldersService {
@@ -118,7 +118,7 @@ export class FoldersService {
     });
   }
 
-  async getZippedFolder(res: Response, folderID: string) {
+  async downloadFolder(res: Response, folderID: string) {
     try {
       const folder = await this.getFolderByID(folderID);
       const sourceDir = process.cwd() + folder.path;
@@ -142,6 +142,56 @@ export class FoldersService {
       res.download(zipFilePath, folder.name + '.zip', () => {
         deleteFile(zipFilePath);
       });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async moveFolderToTrash(folderID: string) {
+    try {
+      const folder = await this.getFolderByID(folderID);
+      await this.folderRepository.save({
+        ...folder,
+        isTrash: true,
+      });
+      return 'Move folder to trash successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getTrashFolder(userID: string): Promise<Folder[]> {
+    try {
+      return await this.folderRepository.find({
+        where: {
+          ownerID: userID,
+          isTrash: true,
+        },
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async moveFolderOutOfTrash(folderID: string) {
+    try {
+      const folder = await this.getFolderByID(folderID);
+      await this.folderRepository.save({
+        ...folder,
+        isTrash: false,
+      });
+      return 'Move folder out of trash successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async deleteFolderForever(folderID: string) {
+    try {
+      const folder = await this.getFolderByID(folderID);
+      await this.folderRepository.remove(folder);
+      deleteFolder(`${process.cwd()}${folder.path}`);
+      return 'Delete folder successfully';
     } catch (err) {
       throw err;
     }

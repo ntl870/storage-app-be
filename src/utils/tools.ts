@@ -1,5 +1,5 @@
 import { hashSync, compareSync } from 'bcrypt';
-import { unlinkSync } from 'fs';
+import { rmSync, unlinkSync } from 'fs';
 import { EnvVar } from 'src/types';
 
 export const hashPassword = (password: string, salt = 10) =>
@@ -73,4 +73,8 @@ export const getFileType = (url: string) => {
 
 export const deleteFile = (path: string) => {
   unlinkSync(path);
+};
+
+export const deleteFolder = (path: string) => {
+  rmSync(path, { recursive: true });
 };

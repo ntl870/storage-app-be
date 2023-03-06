@@ -16,14 +16,16 @@ import {
 export class File extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
-  ID: number;
+  ID: string;
 
   @Field()
   @Column()
   name: string;
 
   @Field(() => Folder, { nullable: true })
-  @ManyToOne(() => Folder, (folder) => folder.files)
+  @ManyToOne(() => Folder, (folder) => folder.files, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   folder: Folder;
 
@@ -38,4 +40,8 @@ export class File extends BaseEntity {
   @Field()
   @Column({ nullable: true })
   ownerID: string;
+
+  @Field()
+  @Column({ default: false })
+  isTrash: boolean;
 }

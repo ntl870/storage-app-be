@@ -5,7 +5,7 @@ import { getRepository } from '@db/db';
 import { Upload } from 'graphql-upload';
 import { Folder } from '@modules/folders/folders.entity';
 import { createWriteStream } from 'fs';
-import { getFileType } from '@utils/tools';
+import { deleteFile, getFileType } from '@utils/tools';
 
 @Injectable()
 export class FilesService {
@@ -35,7 +35,7 @@ export class FilesService {
   async getFileByID(ID: string): Promise<File> {
     return await this.fileRepository.findOne({
       where: {
-        ID: Number(ID),
+        ID: ID,
       },
     });
   }
@@ -90,6 +90,57 @@ export class FilesService {
         },
       });
       return files;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async moveFileToTrash(fileID: string) {
+    try {
+      const file = await this.getFileByID(fileID);
+      return await this.fileRepository.save({
+        ...file,
+        isTrash: true,
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getTrashFiles(userID: string) {
+    try {
+      const files = await this.fileRepository.find({
+        where: {
+          ownerID: userID,
+          isTrash: true,
+        },
+      });
+      return files;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async moveFileOutOfTrash(fileID: string) {
+    try {
+      const file = await this.getFileByID(fileID);
+      return await this.fileRepository.save({
+        ...file,
+        isTrash: false,
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async deleteFileForever(fileID: string) {
+    try {
+      const file = await this.getFileByID(fileID);
+      await this.fileRepository.delete({
+        ID: fileID,
+      });
+      deleteFile(`${process.cwd()}${file.url}`);
+      return 'File deleted';
     } catch (err) {
       throw err;
     }
