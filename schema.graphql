@@ -44,6 +44,7 @@ type Query {
   getUserFolders(folderID: String!): [Folder!]!
   getUserFiles: [File!]!
   getUserTrashFolder: [Folder!]!
+  getArrayOfRootFoldersName(folderID: String!): [Folder!]!
   getFileByID(ID: String!): File!
   getFilesByFolder(folderID: String!): [File!]!
   getUserTrashFiles: [File!]!

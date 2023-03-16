@@ -103,6 +103,7 @@ export class FoldersService {
       where: {
         ID: folderID,
       },
+      relations: ['rootFolder'],
     });
   }
 
@@ -195,5 +196,14 @@ export class FoldersService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async getArrayOfRootFoldersName(folderID: string) {
+    const folder = await this.getFolderByID(folderID);
+    const rootFolder = folder.rootFolder;
+    if (rootFolder) {
+      return [folder, ...(await this.getArrayOfRootFoldersName(rootFolder.ID))];
+    }
+    return [folder];
   }
 }

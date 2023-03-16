@@ -8,7 +8,7 @@ import { connectToDb } from './db/db';
 
 async function bootstrap() {
   try {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule, { cors: true });
     await connectToDb();
 
     // initialize graphql-upload middleware

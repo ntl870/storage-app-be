@@ -52,4 +52,10 @@ export class FoldersResolver {
   async deleteFolder(@Args('folderID') folderID: string) {
     return await this.folderService.deleteFolderForever(folderID);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [Folder])
+  getArrayOfRootFoldersName(@Args('folderID') folderID: string) {
+    return this.folderService.getArrayOfRootFoldersName(folderID);
+  }
 }
