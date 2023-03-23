@@ -1,12 +1,13 @@
-import { FilesService } from '@modules/files/files.service';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { FoldersResolver } from './folders.resolver';
 import { FoldersService } from './folders.service';
 import { FoldersController } from './folders.controller';
+import { FilesModule } from '@modules/files/files.module';
 
 @Module({
-  providers: [FoldersService, FoldersResolver, FilesService],
-  exports: [FoldersService],
+  imports: [forwardRef(() => FilesModule)],
+  providers: [FoldersService, FoldersResolver],
   controllers: [FoldersController],
+  exports: [FoldersService],
 })
 export class FoldersModule {}

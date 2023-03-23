@@ -1,6 +1,7 @@
 import { FoldersService } from '@modules/folders/folders.service';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ErrorException } from '@utils/exceptions';
 import { comparePassword } from 'src/utils/tools';
 import { UserService } from '../user/user.service';
 import { NewUserInput, SignInInput } from './auth.types';
@@ -46,6 +47,6 @@ export class AuthService {
       };
     }
 
-    throw new Error('User already exists');
+    throw ErrorException.badRequest('User already exists');
   }
 }

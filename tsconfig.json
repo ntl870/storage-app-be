@@ -14,7 +14,8 @@
       "@utils/*": ["src/utils/*"],
       "@db/*": ["src/db/*"],
       "@decorators/*": ["src/decorators/*"],
-      "@modules/*": ["src/modules/*"]
+      "@modules/*": ["src/modules/*"],
+      "@middlewares/*": ["src/middlewares/*"]
     },
     "incremental": true,
     "skipLibCheck": true,

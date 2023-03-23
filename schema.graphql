@@ -2,6 +2,19 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type File {
+  ID: String!
+  name: String!
+  folder: Folder
+  url: String!
+  fileType: String!
+  ownerID: String!
+  isTrash: Boolean!
+  isPublic: Boolean!
+  sharedUsers: [User!]
+  readonlyUsers: [User!]
+}
+
 type Folder {
   ID: String!
   name: String!
@@ -11,16 +24,9 @@ type Folder {
   ownerID: String!
   path: String!
   isTrash: Boolean!
-}
-
-type File {
-  ID: String!
-  name: String!
-  folder: Folder
-  url: String!
-  fileType: String!
-  ownerID: String!
-  isTrash: Boolean!
+  sharedUsers: [User!]
+  readonlyUsers: [User!]
+  isPublic: Boolean!
 }
 
 type User {

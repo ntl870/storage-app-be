@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { File } from '@modules/files/files.entity';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { getRepository } from '@db/db';
@@ -6,13 +6,34 @@ import { Upload } from 'graphql-upload';
 import { Folder } from '@modules/folders/folders.entity';
 import { createWriteStream } from 'fs';
 import { deleteFile, getFileType } from '@utils/tools';
+import { FoldersService } from '@modules/folders/folders.service';
+import { ErrorException } from '@utils/exceptions';
 
 @Injectable()
 export class FilesService {
   fileRepository: Repository<File>;
 
-  constructor() {
+  constructor(
+    @Inject(forwardRef(() => FoldersService))
+    private readonly folderService: FoldersService,
+  ) {
     this.fileRepository = getRepository(File);
+  }
+
+  canModify(userID: string, file: File) {
+    return (
+      file?.ownerID === userID ||
+      !!file?.sharedUsers?.find((user) => user.ID === userID) ||
+      file?.isPublic
+    );
+  }
+
+  canAccess(userID: string, file: File) {
+    return (
+      file?.ownerID === userID ||
+      !!file?.readonlyUsers?.find((user) => user.ID === userID) ||
+      file?.isPublic
+    );
   }
 
   async create(input: File): Promise<File> {
@@ -20,7 +41,7 @@ export class FilesService {
       const savedFile = await this.fileRepository.save(input);
       return savedFile;
     } catch (err) {
-      throw err;
+      throw new Error(err);
     }
   }
 
@@ -57,6 +78,9 @@ export class FilesService {
     userID: string,
     rootFolder: Folder,
   ): Promise<File> {
+    if (!this.folderService.canModify(userID, file)) {
+      throw ErrorException.forbidden("You don't have access to this folder");
+    }
     const { createReadStream, filename } = await file;
 
     try {
@@ -80,24 +104,29 @@ export class FilesService {
     }
   }
 
-  async getFilesOfFolder(folderID: string) {
-    try {
-      const files = await this.fileRepository.find({
-        where: {
-          folder: {
-            ID: folderID,
-          },
-        },
-      });
-      return files;
-    } catch (err) {
-      throw err;
+  async getFilesOfFolder(folderID: string, userID: string) {
+    const folder = await this.folderService.getFolderByID(folderID);
+    if (!this.folderService.canAccess(userID, folder)) {
+      throw ErrorException.forbidden("You don't have access to this folder");
     }
+    const files = await this.fileRepository.find({
+      where: {
+        folder: {
+          ID: folderID,
+        },
+      },
+    });
+    return files;
   }
 
-  async moveFileToTrash(fileID: string) {
+  async moveFileToTrash(fileID: string, userID: string) {
     try {
       const file = await this.getFileByID(fileID);
+      if (this.canModify(userID, file)) {
+        throw ErrorException.forbidden(
+          'You are not allowed move this file to trash',
+        );
+      }
       return await this.fileRepository.save({
         ...file,
         isTrash: true,

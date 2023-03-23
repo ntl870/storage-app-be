@@ -1,4 +1,5 @@
 import { Folder } from '@modules/folders/folders.entity';
+import { User } from '@modules/user/user.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
 import {
   BaseEntity,
@@ -6,6 +7,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -44,4 +46,18 @@ export class File extends BaseEntity {
   @Field()
   @Column({ default: false })
   isTrash: boolean;
+
+  @Field()
+  @Column({ default: false })
+  isPublic: boolean;
+
+  @Field(() => [User], { nullable: true })
+  @OneToMany(() => User, (user) => user.ID)
+  @JoinColumn()
+  sharedUsers?: User[];
+
+  @Field(() => [User], { nullable: true })
+  @OneToMany(() => User, (user) => user.ID)
+  @JoinColumn()
+  readonlyUsers?: User[];
 }

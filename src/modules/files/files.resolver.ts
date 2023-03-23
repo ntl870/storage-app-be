@@ -36,8 +36,11 @@ export class FilesResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => [File])
-  async getFilesByFolder(@Args('folderID') folderID: string) {
-    return this.filesService.getFilesOfFolder(folderID);
+  async getFilesByFolder(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+  ) {
+    return this.filesService.getFilesOfFolder(folderID, user.ID);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -48,8 +51,11 @@ export class FilesResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => File)
-  async moveFileToTrash(@Args('fileID') fileID: string) {
-    return this.filesService.moveFileToTrash(fileID);
+  async moveFileToTrash(
+    @CurrentUser() user: User,
+    @Args('fileID') fileID: string,
+  ) {
+    return this.filesService.moveFileToTrash(fileID, user.ID);
   }
 
   @UseGuards(JwtAuthGuard)

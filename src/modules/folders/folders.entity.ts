@@ -9,6 +9,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { File } from '@modules/files/files.entity';
+import { User } from '@modules/user/user.entity';
 @ObjectType()
 @Entity({
   name: 'folders',
@@ -54,4 +55,18 @@ export class Folder extends BaseEntity {
   @Field(() => Boolean)
   @Column({ default: false })
   isTrash: boolean;
+
+  @Field(() => [User], { nullable: true })
+  @OneToMany(() => User, (user) => user.ID)
+  @JoinColumn()
+  sharedUsers?: User[];
+
+  @Field(() => [User], { nullable: true })
+  @OneToMany(() => User, (user) => user.ID)
+  @JoinColumn()
+  readonlyUsers?: User[];
+
+  @Field(() => Boolean)
+  @Column({ default: false })
+  isPublic: boolean;
 }
