@@ -30,7 +30,7 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @Field(() => Folder)
+  @Field(() => Folder, { nullable: true })
   @ManyToOne(() => Folder, (folder) => folder)
   @JoinColumn()
   rootFolder: Folder;
