@@ -8,6 +8,8 @@ import { createWriteStream } from 'fs';
 import { deleteFile, getFileType } from '@utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import { ErrorException } from '@utils/exceptions';
+import { Response } from 'express';
+import { join } from 'path';
 
 @Injectable()
 export class FilesService {
@@ -22,7 +24,7 @@ export class FilesService {
 
   canModify(userID: string, file: File) {
     return (
-      file?.ownerID === userID ||
+      file?.ownerID === String(userID) ||
       !!file?.sharedUsers?.find((user) => user.ID === userID) ||
       file?.isPublic
     );
@@ -30,7 +32,7 @@ export class FilesService {
 
   canAccess(userID: string, file: File) {
     return (
-      file?.ownerID === userID ||
+      file?.ownerID === String(userID) ||
       !!file?.readonlyUsers?.find((user) => user.ID === userID) ||
       file?.isPublic
     );
@@ -78,7 +80,7 @@ export class FilesService {
     userID: string,
     rootFolder: Folder,
   ): Promise<File> {
-    if (!this.folderService.canModify(userID, file)) {
+    if (!this.folderService.canModify(userID, rootFolder)) {
       throw ErrorException.forbidden("You don't have access to this folder");
     }
     const { createReadStream, filename } = await file;
@@ -173,5 +175,13 @@ export class FilesService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async downloadFile(res: Response, fileID: string) {
+    const file = await this.getFileByID(fileID);
+    // if (!this.canAccess(userID, file)) {
+    //   throw ErrorException.forbidden("You don't have access to this file");
+    // }
+    return res.download(join(process.cwd(), `${file.url}`), file.name);
   }
 }

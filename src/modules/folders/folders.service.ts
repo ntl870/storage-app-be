@@ -23,7 +23,7 @@ export class FoldersService {
 
   canModify(userID: string, folder: Folder) {
     return (
-      folder?.ownerID === userID ||
+      folder?.ownerID === String(userID) ||
       !!folder?.sharedUsers?.find((user: User) => user.ID === userID) ||
       folder?.isPublic
     );
@@ -31,7 +31,7 @@ export class FoldersService {
 
   canAccess(userID: string, folder: Folder) {
     return (
-      folder?.ownerID === userID ||
+      folder?.ownerID === String(userID) ||
       !!folder?.readonlyUsers?.find((user: User) => user.ID === userID) ||
       folder?.isPublic
     );
@@ -47,7 +47,7 @@ export class FoldersService {
           })
         : null;
 
-      if (!this.canModify(userID, rootFolder)) {
+      if (!this.canModify(userID, rootFolder) && !!rootFolder) {
         throw ErrorException.forbidden(
           'You are not allowed to create a folder in this folder',
         );

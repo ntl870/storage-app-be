@@ -32,21 +32,26 @@ export class AuthService {
 
   async signup(userInput: NewUserInput) {
     const user = await this.usersService.getOne(userInput.email);
+    try {
+      if (!user) {
+        const payload = {
+          email: userInput.email,
+          password: userInput.password,
+        };
+        const newUser = await this.usersService.create(userInput);
+        const accessToken = this.jwtService.sign(payload, {
+          secret: 'ntlong',
+        });
 
-    if (!user) {
-      const payload = { email: userInput.email, password: userInput.password };
-      const newUser = await this.usersService.create(userInput);
-      const accessToken = this.jwtService.sign(payload, {
-        secret: 'ntlong',
-      });
-
-      return {
-        accessToken,
-        name: newUser.name,
-        email: newUser.email,
-      };
+        return {
+          accessToken,
+          name: newUser.name,
+          email: newUser.email,
+        };
+      }
+      throw ErrorException.badRequest('User already exists');
+    } catch (err) {
+      throw err;
     }
-
-    throw ErrorException.badRequest('User already exists');
   }
 }
