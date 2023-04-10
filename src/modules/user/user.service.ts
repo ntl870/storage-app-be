@@ -1,16 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { getRepository } from 'src/db/db';
-import { Repository } from 'typeorm';
+import { In, Like, Repository } from 'typeorm';
 import { NewUserInput } from '../auth/auth.types';
 import { User } from './user.entity';
 import { hashPassword } from 'src/utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import * as fs from 'fs';
+import { UserSearchPaginationResponse } from './user.type';
 @Injectable()
 export class UserService {
   userRepository: Repository<User>;
 
-  constructor(private readonly folderService: FoldersService) {
+  constructor(
+    @Inject(forwardRef(() => FoldersService))
+    private readonly folderService: FoldersService,
+  ) {
     this.userRepository = getRepository(User);
   }
 
@@ -56,5 +60,24 @@ export class UserService {
       relations: ['rootFolder'],
     });
     return user;
+  }
+
+  async getManyByArrayOfIDs(folderIDs: string[]): Promise<User[]> {
+    return await this.userRepository.findBy({ ID: In(folderIDs) });
+  }
+
+  async getUsersBySearchPagination(
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<UserSearchPaginationResponse> {
+    const [users, total] = await this.userRepository.findAndCount({
+      where: [{ email: Like(`%${search}%`) }, { name: Like(`%${search}%`) }],
+      skip: page === 1 ? 0 : page * limit,
+      take: limit,
+    });
+    const hasMore = (page + 1) * limit < total;
+
+    return { results: users, hasMore };
   }
 }

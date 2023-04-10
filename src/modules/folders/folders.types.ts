@@ -1,4 +1,5 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { User } from '@modules/user/user.entity';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { GraphQLUpload, Upload } from 'graphql-upload';
 
 @InputType()
@@ -29,4 +30,16 @@ export class UploadFolderInput {
 
   @Field(() => String)
   rootFolderID: string;
+}
+
+@ObjectType()
+export class PeopleWithAccessResponse {
+  @Field(() => [User])
+  sharedUsers: User[];
+
+  @Field(() => [User])
+  readonlyUsers: User[];
+
+  @Field(() => Boolean)
+  isPublic: boolean;
 }

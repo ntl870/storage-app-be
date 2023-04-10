@@ -4,6 +4,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -57,14 +59,14 @@ export class Folder extends BaseEntity {
   isTrash: boolean;
 
   @Field(() => [User], { nullable: true })
-  @OneToMany(() => User, (user) => user.ID)
-  @JoinColumn()
-  sharedUsers?: User[];
+  @ManyToMany(() => User, (user) => user)
+  @JoinTable()
+  sharedUsers: User[];
 
   @Field(() => [User], { nullable: true })
-  @OneToMany(() => User, (user) => user.ID)
-  @JoinColumn()
-  readonlyUsers?: User[];
+  @ManyToMany(() => User, (user) => user)
+  @JoinTable()
+  readonlyUsers: User[];
 
   @Field(() => Boolean)
   @Column({ default: false })

@@ -1,8 +1,12 @@
 import { getRepository } from '@db/db';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Folder } from './folders.entity';
-import { NewFolderInput, UploadFolderInput } from './folders.types';
+import {
+  NewFolderInput,
+  PeopleWithAccessResponse,
+  UploadFolderInput,
+} from './folders.types';
 import { createWriteStream, mkdirSync } from 'fs';
 import { FilesService } from '@modules/files/files.service';
 import * as archiver from 'archiver';
@@ -10,6 +14,9 @@ import { Response } from 'express';
 import { deleteFile, deleteFolder } from '@utils/tools';
 import { User } from '@modules/user/user.entity';
 import { ErrorException } from '@utils/exceptions';
+import { UserService } from '@modules/user/user.service';
+import { MailService } from '@modules/mail/mail.service';
+import { getSharedFolderHtmlBody } from '@utils/mails';
 
 @Injectable()
 export class FoldersService {
@@ -17,6 +24,9 @@ export class FoldersService {
   constructor(
     @Inject(forwardRef(() => FilesService))
     private readonly fileService: FilesService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
+    private readonly mailService: MailService,
   ) {
     this.folderRepository = getRepository(Folder);
   }
@@ -140,7 +150,7 @@ export class FoldersService {
       where: {
         ID: folderID,
       },
-      relations: ['rootFolder'],
+      relations: ['rootFolder', 'sharedUsers'],
     });
   }
 
@@ -252,10 +262,167 @@ export class FoldersService {
 
   async getArrayOfRootFoldersName(folderID: string) {
     const folder = await this.getFolderByID(folderID);
-    const rootFolder = folder.rootFolder;
+    const rootFolder = folder?.rootFolder;
     if (rootFolder) {
       return [folder, ...(await this.getArrayOfRootFoldersName(rootFolder.ID))];
     }
     return [folder];
+  }
+
+  async makeFolderPublic(userID: string, folderID: string) {
+    try {
+      const folder = await this.getFolderByID(folderID);
+      if (!this.canModify(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to make this folder public',
+        );
+      }
+      await this.folderRepository.save({
+        ...folder,
+        isPublic: true,
+      });
+      return 'Make folder public successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async addUserToFolderSharedUsers(
+    userID: string,
+    folderID: string,
+    sharedUserID: string[],
+    shouldSendMail: boolean,
+    userMessage: string,
+  ) {
+    try {
+      const folder = await this.getFolderByID(folderID);
+      if (!this.canModify(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to make this folder public',
+        );
+      }
+      const sentUser = await this.userService.getOneByID(userID);
+      const addedUsers = await this.userService.getManyByArrayOfIDs(
+        sharedUserID,
+      );
+
+      if (!folder.sharedUsers) folder.sharedUsers = [];
+
+      addedUsers.forEach(async (user) => {
+        if (!folder.sharedUsers?.includes(user)) {
+          folder.sharedUsers.push(user);
+        } else {
+          throw ErrorException.badRequest('User already added');
+        }
+        await this.folderRepository.save(folder);
+
+        if (shouldSendMail) {
+          const folderUrl = `http://localhost:3000/folder/${folderID}`;
+          this.mailService.sendMail(
+            user.email,
+            'Folder shared with you',
+            getSharedFolderHtmlBody(sentUser, user, userMessage, folderUrl),
+          );
+        }
+      });
+
+      return 'Add user to folder successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async addUserToFolderReadOnlyUsers(
+    userID: string,
+    folderID: string,
+    readonlyUserIDs: string[],
+    shouldSendMail: boolean,
+    userMessage: string,
+  ) {
+    try {
+      const folder = await this.getFolderByID(folderID);
+      if (!this.canModify(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to make this folder public',
+        );
+      }
+
+      const sentUser = await this.userService.getOneByID(userID);
+      const addedUsers = await this.userService.getManyByArrayOfIDs(
+        readonlyUserIDs,
+      );
+
+      if (!folder.readonlyUsers) folder.readonlyUsers = [];
+
+      addedUsers.forEach(async (user) => {
+        if (!folder.readonlyUsers?.includes(user)) {
+          folder.readonlyUsers.push(user);
+        } else {
+          throw ErrorException.badRequest('User already added');
+        }
+        await this.folderRepository.save(folder);
+
+        if (shouldSendMail) {
+          const folderUrl = `http://localhost:3000/folder/${folderID}`;
+          this.mailService.sendMail(
+            user.email,
+            'Folder shared with you',
+            getSharedFolderHtmlBody(sentUser, user, userMessage, folderUrl),
+          );
+        }
+      });
+
+      return 'Add user to read only successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getPeopleWithAccess(
+    userID: string,
+    folderID: string,
+  ): Promise<PeopleWithAccessResponse> {
+    try {
+      const folder = await this.folderRepository.findOne({
+        where: {
+          ID: folderID,
+        },
+        relations: ['sharedUsers', 'readonlyUsers'],
+      });
+      if (!this.canAccess(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to access this folder',
+        );
+      }
+      return {
+        readonlyUsers: folder.readonlyUsers,
+        sharedUsers: folder.sharedUsers,
+        isPublic: folder.isPublic,
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async setGeneralAccessOfFolder(
+    userID: string,
+    folderID: string,
+    isPublic: boolean,
+  ) {
+    try {
+      const folder = await this.getFolderByID(folderID);
+      if (!this.canModify(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to make this folder public',
+        );
+      }
+      await this.folderRepository.save({
+        ...folder,
+        isPublic,
+      });
+      return 'Set general access of folder successfully';
+    } catch (err) {
+      throw err;
+    }
   }
 }

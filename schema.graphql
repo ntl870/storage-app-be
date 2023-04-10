@@ -34,7 +34,18 @@ type User {
   name: String!
   email: String!
   password: String!
-  rootFolder: Folder!
+  rootFolder: Folder
+}
+
+type PeopleWithAccessResponse {
+  sharedUsers: [User!]!
+  readonlyUsers: [User!]!
+  isPublic: Boolean!
+}
+
+type UserSearchPaginationResponse {
+  results: [User!]!
+  hasMore: Boolean!
 }
 
 type NewUserReturn {
@@ -49,8 +60,10 @@ type Query {
   getUserByID(ID: String!): User!
   getUserFolders(folderID: String!): [Folder!]!
   getUserFiles: [File!]!
+  getUsersBySearchPagination(search: String!, page: Float!, limit: Float!): UserSearchPaginationResponse!
   getUserTrashFolder: [Folder!]!
   getArrayOfRootFoldersName(folderID: String!): [Folder!]!
+  getPeopleWithAccessToFolder(folderID: String!): PeopleWithAccessResponse!
   getFileByID(ID: String!): File!
   getFilesByFolder(folderID: String!): [File!]!
   getUserTrashFiles: [File!]!
@@ -64,6 +77,9 @@ type Mutation {
   moveFolderToTrash(folderID: String!): String!
   moveFolderOutOfTrash(folderID: String!): String!
   deleteFolder(folderID: String!): String!
+  addSharedUserToFolder(folderID: String!, sharedUserIDs: [String!]!, shouldSendMail: Boolean!, userMessage: String): String!
+  addUserToFolderReadOnlyUsers(folderID: String!, readOnlyUserIDs: [String!]!, shouldSendMail: Boolean!, userMessage: String): String!
+  setGeneralFolderAccess(folderID: String!, isPublic: Boolean!): String!
   uploadFile(file: Upload!, folderID: String!): File!
   moveFileToTrash(fileID: String!): File!
   restoreFileFromTrash(fileID: String!): File!

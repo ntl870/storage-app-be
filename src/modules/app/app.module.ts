@@ -1,5 +1,5 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -24,7 +24,7 @@ import { FoldersModule } from '@modules/folders/folders.module';
       secret: getEnvVar(EnvVar.JWT_SECRET),
       signOptions: { expiresIn: '1d' },
     }),
-    AuthModule,
+    forwardRef(() => AuthModule),
     UserModule,
     PassportModule,
     FilesModule,

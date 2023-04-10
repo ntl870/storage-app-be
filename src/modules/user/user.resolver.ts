@@ -8,6 +8,7 @@ import { CurrentUser } from 'src/decorators/CurrentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from './user.entity';
 import { UserService } from './user.service';
+import { UserSearchPaginationResponse } from './user.type';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -47,5 +48,19 @@ export class UserResolver {
   @Query(() => [File])
   async getUserFiles(@CurrentUser() user: User) {
     return await this.fileService.getUserFiles(user.ID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => UserSearchPaginationResponse)
+  async getUsersBySearchPagination(
+    @Args('search') search: string,
+    @Args('page') page: number,
+    @Args('limit') limit: number,
+  ) {
+    return await this.userService.getUsersBySearchPagination(
+      search,
+      page,
+      limit,
+    );
   }
 }

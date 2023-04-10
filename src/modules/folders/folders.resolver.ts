@@ -5,7 +5,11 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Folder } from './folders.entity';
 import { FoldersService } from './folders.service';
-import { NewFolderInput, UploadFolderInput } from './folders.types';
+import {
+  NewFolderInput,
+  PeopleWithAccessResponse,
+  UploadFolderInput,
+} from './folders.types';
 
 @Resolver()
 export class FoldersResolver {
@@ -57,5 +61,65 @@ export class FoldersResolver {
   @Query(() => [Folder])
   getArrayOfRootFoldersName(@Args('folderID') folderID: string) {
     return this.folderService.getArrayOfRootFoldersName(folderID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async addSharedUserToFolder(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+    @Args('sharedUserIDs', { type: () => [String] }) sharedUserIDs: string[],
+    @Args('shouldSendMail') shouldSendMail: boolean,
+    @Args('userMessage', { nullable: true }) userMessage: string,
+  ) {
+    return await this.folderService.addUserToFolderSharedUsers(
+      user.ID,
+      folderID,
+      sharedUserIDs,
+      shouldSendMail,
+      userMessage,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async addUserToFolderReadOnlyUsers(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+    @Args('readOnlyUserIDs', { type: () => [String] })
+    readOnlyUserIDs: string[],
+    @Args('shouldSendMail') shouldSendMail: boolean,
+    @Args('userMessage', { nullable: true }) userMessage: string,
+  ) {
+    return await this.folderService.addUserToFolderReadOnlyUsers(
+      user.ID,
+      folderID,
+      readOnlyUserIDs,
+      shouldSendMail,
+      userMessage,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => PeopleWithAccessResponse)
+  async getPeopleWithAccessToFolder(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+  ) {
+    return await this.folderService.getPeopleWithAccess(user.ID, folderID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async setGeneralFolderAccess(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+    @Args('isPublic') isPublic: boolean,
+  ) {
+    return await this.folderService.setGeneralAccessOfFolder(
+      user.ID,
+      folderID,
+      isPublic,
+    );
   }
 }
