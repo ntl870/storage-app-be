@@ -11,12 +11,13 @@ import { createWriteStream, mkdirSync } from 'fs';
 import { FilesService } from '@modules/files/files.service';
 import * as archiver from 'archiver';
 import { Response } from 'express';
-import { deleteFile, deleteFolder } from '@utils/tools';
+import { deleteFile, deleteFolder, getEnvVar } from '@utils/tools';
 import { User } from '@modules/user/user.entity';
 import { ErrorException } from '@utils/exceptions';
 import { UserService } from '@modules/user/user.service';
 import { MailService } from '@modules/mail/mail.service';
 import { getSharedFolderHtmlBody } from '@utils/mails';
+import { EnvVar } from 'src/types';
 
 @Injectable()
 export class FoldersService {
@@ -151,6 +152,18 @@ export class FoldersService {
         ID: folderID,
       },
       relations: ['rootFolder', 'sharedUsers'],
+    });
+  }
+
+  async getFolderByIDWithRelations(
+    folderID: string,
+    relations: string[],
+  ): Promise<Folder> {
+    return await this.folderRepository.findOne({
+      where: {
+        ID: folderID,
+      },
+      relations,
     });
   }
 
@@ -317,7 +330,9 @@ export class FoldersService {
         await this.folderRepository.save(folder);
 
         if (shouldSendMail) {
-          const folderUrl = `http://localhost:3000/folder/${folderID}`;
+          const folderUrl = `${getEnvVar(
+            EnvVar.FRONT_END_URL,
+          )}/folder/${folderID}`;
           this.mailService.sendMail(
             user.email,
             'Folder shared with you',
@@ -421,6 +436,79 @@ export class FoldersService {
         isPublic,
       });
       return 'Set general access of folder successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async removeUserFromFolder(
+    userID: string,
+    folderID: string,
+    targetUserID: string,
+  ) {
+    try {
+      const folder = await this.getFolderByIDWithRelations(folderID, [
+        'sharedUsers',
+        'readonlyUsers',
+      ]);
+      if (!this.canModify(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to remove this user from folder',
+        );
+      }
+      folder.sharedUsers = folder.sharedUsers.filter(
+        (user) => String(user.ID) !== targetUserID,
+      );
+
+      folder.readonlyUsers = folder.readonlyUsers.filter(
+        (user) => String(user.ID) !== targetUserID,
+      );
+
+      await this.folderRepository.save(folder);
+      return 'Remove user from folder successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async changeUserRoleInFolder(
+    userID: string,
+    folderID: string,
+    targetUserID: string,
+    targetRole: 'Editor' | 'Viewer',
+  ) {
+    try {
+      const folder = await this.getFolderByIDWithRelations(folderID, [
+        'sharedUsers',
+        'readonlyUsers',
+      ]);
+      if (!this.canModify(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to change this user role',
+        );
+      }
+      const targetUser = await this.userService.getOneByID(targetUserID);
+
+      if (targetRole === 'Editor') {
+        folder.readonlyUsers = folder.readonlyUsers.filter(
+          (user) => String(user.ID) !== targetUserID,
+        );
+        !!folder.sharedUsers
+          ? folder.sharedUsers.push(targetUser)
+          : [targetUser];
+      }
+
+      if (targetRole === 'Viewer') {
+        folder.sharedUsers = folder.sharedUsers.filter(
+          (user) => String(user.ID) !== targetUserID,
+        );
+        !!folder.readonlyUsers
+          ? folder.readonlyUsers.push(targetUser)
+          : [targetUser];
+      }
+
+      await this.folderRepository.save(folder);
+      return 'Change user role successfully';
     } catch (err) {
       throw err;
     }

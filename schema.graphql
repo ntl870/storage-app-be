@@ -80,6 +80,8 @@ type Mutation {
   addSharedUserToFolder(folderID: String!, sharedUserIDs: [String!]!, shouldSendMail: Boolean!, userMessage: String): String!
   addUserToFolderReadOnlyUsers(folderID: String!, readOnlyUserIDs: [String!]!, shouldSendMail: Boolean!, userMessage: String): String!
   setGeneralFolderAccess(folderID: String!, isPublic: Boolean!): String!
+  removeUserFromFolder(folderID: String!, targetUserID: String!): String!
+  changeUserRoleInFolder(folderID: String!, targetUserID: String!, targetRole: String!): String!
   uploadFile(file: Upload!, folderID: String!): File!
   moveFileToTrash(fileID: String!): File!
   restoreFileFromTrash(fileID: String!): File!

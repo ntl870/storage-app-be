@@ -10,6 +10,7 @@ import {
   PeopleWithAccessResponse,
   UploadFolderInput,
 } from './folders.types';
+import { ErrorException } from '@utils/exceptions';
 
 @Resolver()
 export class FoldersResolver {
@@ -120,6 +121,39 @@ export class FoldersResolver {
       user.ID,
       folderID,
       isPublic,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async removeUserFromFolder(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+    @Args('targetUserID') targetUserID: string,
+  ) {
+    return await this.folderService.removeUserFromFolder(
+      user.ID,
+      folderID,
+      targetUserID,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async changeUserRoleInFolder(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+    @Args('targetUserID') targetUserID: string,
+    @Args('targetRole') targetRole: 'Editor' | 'Viewer',
+  ) {
+    if (targetRole !== 'Editor' && targetRole !== 'Viewer')
+      throw ErrorException.badRequest('Invalid role');
+
+    return await this.folderService.changeUserRoleInFolder(
+      user.ID,
+      folderID,
+      targetUserID,
+      targetRole,
     );
   }
 }
