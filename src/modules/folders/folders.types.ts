@@ -40,6 +40,9 @@ export class PeopleWithAccessResponse {
   @Field(() => [User])
   readonlyUsers: User[];
 
+  @Field(() => User)
+  owner: User;
+
   @Field(() => Boolean)
   isPublic: boolean;
 }

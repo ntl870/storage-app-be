@@ -34,4 +34,8 @@ export class User extends BaseEntity {
   @ManyToOne(() => Folder, (folder) => folder)
   @JoinColumn()
   rootFolder: Folder;
+
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  avatar: string;
 }

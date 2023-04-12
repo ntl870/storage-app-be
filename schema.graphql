@@ -35,11 +35,13 @@ type User {
   email: String!
   password: String!
   rootFolder: Folder
+  avatar: String
 }
 
 type PeopleWithAccessResponse {
   sharedUsers: [User!]!
   readonlyUsers: [User!]!
+  owner: User!
   isPublic: Boolean!
 }
 
@@ -58,7 +60,7 @@ type Query {
   getMe: User!
   getAllUsers: [User!]!
   getUserByID(ID: String!): User!
-  getUserFolders(folderID: String!): [Folder!]!
+  getFoldersOfFolder(folderID: String!): [Folder!]!
   getUserFiles: [File!]!
   getUsersBySearchPagination(search: String!, page: Float!, limit: Float!): UserSearchPaginationResponse!
   getUserTrashFolder: [Folder!]!

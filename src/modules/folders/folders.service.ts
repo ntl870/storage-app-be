@@ -167,7 +167,10 @@ export class FoldersService {
     });
   }
 
-  async getUserFolders(userID: string, folderID: string): Promise<Folder[]> {
+  async getFoldersOfFolder(
+    userID: string,
+    folderID: string,
+  ): Promise<Folder[]> {
     try {
       const currentFolder = await this.getFolderByID(folderID);
       if (!this.canAccess(userID, currentFolder)) {
@@ -177,12 +180,11 @@ export class FoldersService {
       }
       return await this.folderRepository.find({
         where: {
-          ownerID: userID,
           rootFolder: {
             ID: folderID,
           },
         },
-        relations: ['files', 'subFolders'],
+        relations: ['subFolders'],
       });
     } catch (err) {
       throw err;
@@ -409,10 +411,12 @@ export class FoldersService {
           'You are not allowed to access this folder',
         );
       }
+      const owner = await this.userService.getOneByID(folder.ownerID);
       return {
         readonlyUsers: folder.readonlyUsers,
         sharedUsers: folder.sharedUsers,
         isPublic: folder.isPublic,
+        owner,
       };
     } catch (err) {
       throw err;
