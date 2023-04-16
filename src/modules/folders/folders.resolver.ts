@@ -156,4 +156,10 @@ export class FoldersResolver {
       targetRole,
     );
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async emptyUserTrash(@CurrentUser() user: User) {
+    return await this.folderService.emptyTrash(user.ID);
+  }
 }

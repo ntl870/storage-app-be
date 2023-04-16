@@ -1,6 +1,6 @@
 import { getRepository } from '@db/db';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Folder } from './folders.entity';
 import {
   NewFolderInput,
@@ -329,7 +329,6 @@ export class FoldersService {
         } else {
           throw ErrorException.badRequest('User already added');
         }
-        await this.folderRepository.save(folder);
 
         if (shouldSendMail) {
           const folderUrl = `${getEnvVar(
@@ -342,6 +341,7 @@ export class FoldersService {
           );
         }
       });
+      await this.folderRepository.save(folder);
 
       return 'Add user to folder successfully';
     } catch (err) {
@@ -377,7 +377,6 @@ export class FoldersService {
         } else {
           throw ErrorException.badRequest('User already added');
         }
-        await this.folderRepository.save(folder);
 
         if (shouldSendMail) {
           const folderUrl = `http://localhost:3000/folder/${folderID}`;
@@ -388,6 +387,7 @@ export class FoldersService {
           );
         }
       });
+      await this.folderRepository.save(folder);
 
       return 'Add user to read only successfully';
     } catch (err) {
@@ -513,6 +513,27 @@ export class FoldersService {
 
       await this.folderRepository.save(folder);
       return 'Change user role successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async emptyTrash(userID: string) {
+    try {
+      const trashFolders = await this.folderRepository.find({
+        where: {
+          ownerID: userID,
+          isTrash: true,
+        },
+      });
+      trashFolders.forEach(
+        async (folder) => await this.deleteFolderForever(folder.ID),
+      );
+      const trashFiles = await this.fileService.getTrashFiles(userID);
+      trashFiles.forEach(
+        async (file) => await this.fileService.deleteFileForever(file.ID),
+      );
+      return 'Empty trash successfully';
     } catch (err) {
       throw err;
     }

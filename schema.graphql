@@ -69,6 +69,7 @@ type Query {
   getFileByID(ID: String!): File!
   getFilesByFolder(folderID: String!): [File!]!
   getUserTrashFiles: [File!]!
+  getPeopleWithAccessToFile(fileID: String!): PeopleWithAccessResponse!
 }
 
 type Mutation {
@@ -84,10 +85,16 @@ type Mutation {
   setGeneralFolderAccess(folderID: String!, isPublic: Boolean!): String!
   removeUserFromFolder(folderID: String!, targetUserID: String!): String!
   changeUserRoleInFolder(folderID: String!, targetUserID: String!, targetRole: String!): String!
+  emptyUserTrash: String!
   uploadFile(file: Upload!, folderID: String!): File!
   moveFileToTrash(fileID: String!): File!
   restoreFileFromTrash(fileID: String!): File!
   deleteFile(fileID: String!): String!
+  addUsersToReadonlyFile(fileID: String!, readonlyUserIDs: [String!]!, shouldSendMail: Boolean!, userMessage: String): String!
+  addUsersToSharedUserFile(fileID: String!, sharedUserIDs: [String!]!, shouldSendMail: Boolean!, userMessage: String): String!
+  changeUserRoleInFile(fileID: String!, targetUserID: String!, targetRole: String!): String!
+  removeUserFromFile(fileID: String!, targetUserID: String!): String!
+  setGeneralAccessOfFile(fileID: String!, isPublic: Boolean!): String!
 }
 
 input NewFolderInput {

@@ -10,6 +10,10 @@ import { FoldersService } from '@modules/folders/folders.service';
 import { ErrorException } from '@utils/exceptions';
 import { Response } from 'express';
 import { join } from 'path';
+import { PeopleWithAccessResponse } from '@modules/folders/folders.types';
+import { UserService } from '@modules/user/user.service';
+import { MailService } from '@modules/mail/mail.service';
+import { getSharedFolderHtmlBody } from '@utils/mails';
 
 @Injectable()
 export class FilesService {
@@ -18,6 +22,9 @@ export class FilesService {
   constructor(
     @Inject(forwardRef(() => FoldersService))
     private readonly folderService: FoldersService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
+    private readonly mailService: MailService,
   ) {
     this.fileRepository = getRepository(File);
   }
@@ -124,7 +131,7 @@ export class FilesService {
   async moveFileToTrash(fileID: string, userID: string) {
     try {
       const file = await this.getFileByID(fileID);
-      if (this.canModify(userID, file)) {
+      if (!this.canModify(userID, file)) {
         throw ErrorException.forbidden(
           'You are not allowed move this file to trash',
         );
@@ -183,5 +190,236 @@ export class FilesService {
     //   throw ErrorException.forbidden("You don't have access to this file");
     // }
     return res.download(join(process.cwd(), `${file.url}`), file.name);
+  }
+
+  async addUsersToReadOnlyFile(
+    userID: string,
+    fileID: string,
+    readonlyUserIDs: string[],
+    shouldSendMail: boolean,
+    userMessage: string,
+  ) {
+    try {
+      const file = await this.fileRepository.findOne({
+        where: {
+          ID: fileID,
+        },
+        relations: ['readonlyUsers'],
+      });
+
+      if (!this.canModify(userID, file)) {
+        throw ErrorException.forbidden(
+          "You don't have permission to add user to this file",
+        );
+      }
+
+      const sentUser = await this.userService.getOneByID(userID);
+      const addedUsers = await this.userService.getManyByArrayOfIDs(
+        readonlyUserIDs,
+      );
+
+      addedUsers.forEach(async (user) => {
+        if (!file.readonlyUsers?.includes(user)) {
+          file.readonlyUsers.push(user);
+        } else {
+          throw ErrorException.badRequest('User already added');
+        }
+
+        if (shouldSendMail) {
+          const fileUrl = `http://localhost:3000/file/${fileID}`;
+          this.mailService.sendMail(
+            user.email,
+            'File shared with you',
+            getSharedFolderHtmlBody(sentUser, user, userMessage, fileUrl),
+          );
+        }
+      });
+
+      await this.fileRepository.save(file);
+
+      return 'User added to readonly file';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async addUsersToSharedUserFile(
+    userID: string,
+    fileID: string,
+    sharedUserIDs: string[],
+    shouldSendMail: boolean,
+    userMessage: string,
+  ) {
+    try {
+      const file = await this.fileRepository.findOne({
+        where: {
+          ID: fileID,
+        },
+        relations: ['sharedUsers'],
+      });
+
+      if (!this.canModify(userID, file)) {
+        throw ErrorException.forbidden(
+          "You don't have permission to add user to this file",
+        );
+      }
+
+      const sentUser = await this.userService.getOneByID(userID);
+      const addedUsers = await this.userService.getManyByArrayOfIDs(
+        sharedUserIDs,
+      );
+
+      addedUsers.forEach(async (user) => {
+        if (!file.sharedUsers?.includes(user)) {
+          file.sharedUsers.push(user);
+        } else {
+          throw ErrorException.badRequest('User already added');
+        }
+
+        if (shouldSendMail) {
+          const fileUrl = `http://localhost:3000/file/${fileID}`;
+          this.mailService.sendMail(
+            user.email,
+            'File shared with you',
+            getSharedFolderHtmlBody(sentUser, user, userMessage, fileUrl),
+          );
+        }
+      });
+      await this.fileRepository.save(file);
+
+      return 'User added to shared file';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getPeopleWithAccessToFile(
+    userID: string,
+    fileID: string,
+  ): Promise<PeopleWithAccessResponse> {
+    const file = await this.fileRepository.findOne({
+      where: {
+        ID: fileID,
+      },
+      relations: ['readonlyUsers', 'sharedUsers'],
+    });
+
+    if (!this.canAccess(userID, file)) {
+      throw ErrorException.forbidden("You don't have access to this file");
+    }
+
+    const owner = await this.userService.getOneByID(file.ownerID);
+
+    return {
+      readonlyUsers: file.readonlyUsers,
+      sharedUsers: file.sharedUsers,
+      isPublic: file.isPublic,
+      owner,
+    };
+  }
+
+  async changeUserRoleInFile(
+    userID: string,
+    fileID: string,
+    targetUserID: string,
+    targetRole: 'Editor' | 'Viewer',
+  ) {
+    try {
+      const file = await this.fileRepository.findOne({
+        where: {
+          ID: fileID,
+        },
+        relations: ['readonlyUsers', 'sharedUsers'],
+      });
+
+      if (!this.canModify(userID, file)) {
+        throw ErrorException.forbidden("You don't have access to this file");
+      }
+      const user = await this.userService.getOneByID(targetUserID);
+
+      if (targetRole === 'Editor') {
+        if (
+          !file.sharedUsers.find((user) => String(user.ID) === targetUserID)
+        ) {
+          file.sharedUsers.push(user);
+        }
+        file.readonlyUsers = file.readonlyUsers.filter(
+          (user) => String(user.ID) !== targetUserID,
+        );
+      }
+      if (targetRole === 'Viewer') {
+        if (
+          !file.readonlyUsers.find((user) => String(user.ID) === targetUserID)
+        ) {
+          file.readonlyUsers.push(user);
+        }
+        file.sharedUsers = file.sharedUsers.filter(
+          (user) => String(user.ID) !== targetUserID,
+        );
+      }
+
+      await this.fileRepository.save(file);
+
+      return 'Change user role successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async removeUserFromFile(
+    userID: string,
+    fileID: string,
+    targetUserID: string,
+  ) {
+    try {
+      const file = await this.fileRepository.findOne({
+        where: {
+          ID: fileID,
+        },
+        relations: ['readonlyUsers', 'sharedUsers'],
+      });
+
+      if (!this.canModify(userID, file)) {
+        throw ErrorException.forbidden("You don't have access to this file");
+      }
+
+      file.sharedUsers = file.sharedUsers.filter(
+        (user) => String(user.ID) !== targetUserID,
+      );
+      file.readonlyUsers = file.readonlyUsers.filter(
+        (user) => String(user.ID) !== targetUserID,
+      );
+
+      await this.fileRepository.save(file);
+
+      return 'Remove user successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async setGeneralAccessOfFile(
+    userID: string,
+    fileID: string,
+    isPublic: boolean,
+  ) {
+    try {
+      const file = await this.fileRepository.findOne({
+        where: {
+          ID: fileID,
+        },
+        relations: ['readonlyUsers', 'sharedUsers'],
+      });
+
+      if (!this.canModify(userID, file)) {
+        throw ErrorException.forbidden("You don't have access to this file");
+      }
+
+      await this.fileRepository.save({ ...file, isPublic });
+
+      return 'Change general access successfully';
+    } catch (err) {
+      throw err;
+    }
   }
 }

@@ -5,7 +5,7 @@ import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
 
 @Module({
-  imports: [forwardRef(() => FoldersModule), FilesModule],
+  imports: [forwardRef(() => FoldersModule), forwardRef(() => FilesModule)],
   providers: [UserService, UserResolver],
   exports: [UserService],
 })
