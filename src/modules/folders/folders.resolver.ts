@@ -162,4 +162,25 @@ export class FoldersResolver {
   async emptyUserTrash(@CurrentUser() user: User) {
     return await this.folderService.emptyTrash(user.ID);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [Folder])
+  async getUserSharedFolders(@CurrentUser() user: User) {
+    return await this.folderService.getUserSharedFolders(user.ID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async starFolder(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+  ) {
+    return await this.folderService.starFolder(user.ID, folderID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [Folder])
+  async getStarredFolders(@CurrentUser() user: User) {
+    return await this.folderService.getStarredFolders(user.ID);
+  }
 }

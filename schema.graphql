@@ -13,6 +13,7 @@ type File {
   isPublic: Boolean!
   sharedUsers: [User!]
   readonlyUsers: [User!]
+  starredUsers: [User!]
 }
 
 type Folder {
@@ -27,6 +28,7 @@ type Folder {
   sharedUsers: [User!]
   readonlyUsers: [User!]
   isPublic: Boolean!
+  starredUsers: [User!]
 }
 
 type User {
@@ -66,10 +68,15 @@ type Query {
   getUserTrashFolder: [Folder!]!
   getArrayOfRootFoldersName(folderID: String!): [Folder!]!
   getPeopleWithAccessToFolder(folderID: String!): PeopleWithAccessResponse!
+  getUserSharedFolders: [Folder!]!
+  getStarredFolders: [Folder!]!
   getFileByID(ID: String!): File!
   getFilesByFolder(folderID: String!): [File!]!
   getUserTrashFiles: [File!]!
   getPeopleWithAccessToFile(fileID: String!): PeopleWithAccessResponse!
+  getFileByIDWithAccess(fileID: String!): File!
+  getUserSharedFiles: [File!]!
+  getStarredFiles: [File!]!
 }
 
 type Mutation {
@@ -86,6 +93,7 @@ type Mutation {
   removeUserFromFolder(folderID: String!, targetUserID: String!): String!
   changeUserRoleInFolder(folderID: String!, targetUserID: String!, targetRole: String!): String!
   emptyUserTrash: String!
+  starFolder(folderID: String!): String!
   uploadFile(file: Upload!, folderID: String!): File!
   moveFileToTrash(fileID: String!): File!
   restoreFileFromTrash(fileID: String!): File!
@@ -95,6 +103,7 @@ type Mutation {
   changeUserRoleInFile(fileID: String!, targetUserID: String!, targetRole: String!): String!
   removeUserFromFile(fileID: String!, targetUserID: String!): String!
   setGeneralAccessOfFile(fileID: String!, isPublic: Boolean!): String!
+  starFile(fileID: String!): String!
 }
 
 input NewFolderInput {

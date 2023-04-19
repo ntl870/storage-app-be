@@ -71,4 +71,9 @@ export class Folder extends BaseEntity {
   @Field(() => Boolean)
   @Column({ default: false })
   isPublic: boolean;
+
+  @Field(() => [User], { nullable: true })
+  @ManyToMany(() => User, (user) => user)
+  @JoinTable()
+  starredUsers: User[];
 }

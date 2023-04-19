@@ -61,4 +61,9 @@ export class File extends BaseEntity {
   @ManyToMany(() => User, (user) => user)
   @JoinTable()
   readonlyUsers: User[];
+
+  @Field(() => [User], { nullable: true })
+  @ManyToMany(() => User, (user) => user)
+  @JoinTable()
+  starredUsers: User[];
 }

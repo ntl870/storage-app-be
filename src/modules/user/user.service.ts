@@ -7,6 +7,7 @@ import { hashPassword } from 'src/utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import * as fs from 'fs';
 import { UserSearchPaginationResponse } from './user.type';
+import { Folder } from '@modules/folders/folders.entity';
 @Injectable()
 export class UserService {
   userRepository: Repository<User>;
@@ -36,6 +37,10 @@ export class UserService {
     newUser.rootFolder = rootFolder;
 
     return await this.userRepository.save(newUser);
+  }
+
+  async save(user: User): Promise<User> {
+    return await this.userRepository.save(user);
   }
 
   async getOne(email: string): Promise<User> {

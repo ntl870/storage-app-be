@@ -22,12 +22,16 @@ export class MailService {
   }
 
   sendMail(to: string, subject: string, html: string) {
-    const mailOptions: nodemailer.SendMailOptions = {
-      from: `"Storage App Mail Bot" <${this.mailUserName}>`, // sender address
-      to, // list of receivers
-      subject, // Subject line
-      html, // html body
-    };
-    this.transporter.sendMail(mailOptions);
+    try {
+      const mailOptions: nodemailer.SendMailOptions = {
+        from: `"Storage App Mail Bot" <${this.mailUserName}>`, // sender address
+        to, // list of receivers
+        subject, // Subject line
+        html, // html body
+      };
+      this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      throw new Error('Error sending email');
+    }
   }
 }

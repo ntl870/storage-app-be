@@ -152,4 +152,31 @@ export class FilesResolver {
   ) {
     return this.filesService.setGeneralAccessOfFile(user.ID, fileID, isPublic);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => File)
+  async getFileByIDWithAccess(
+    @CurrentUser() user: User,
+    @Args('fileID') fileID: string,
+  ) {
+    return await this.filesService.getFileByIDWithAccess(user.ID, fileID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [File])
+  async getUserSharedFiles(@CurrentUser() user: User) {
+    return await this.filesService.getUserSharedFiles(user.ID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [File])
+  async getStarredFiles(@CurrentUser() user: User) {
+    return await this.filesService.getStarredFiles(user.ID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async starFile(@CurrentUser() user: User, @Args('fileID') fileID: string) {
+    return await this.filesService.starFile(user.ID, fileID);
+  }
 }

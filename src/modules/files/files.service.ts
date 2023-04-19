@@ -32,7 +32,7 @@ export class FilesService {
   canModify(userID: string, file: File) {
     return (
       file?.ownerID === String(userID) ||
-      !!file?.sharedUsers?.find((user) => user.ID === userID) ||
+      !!file?.sharedUsers?.find((user) => String(user.ID) === userID) ||
       file?.isPublic
     );
   }
@@ -40,7 +40,8 @@ export class FilesService {
   canAccess(userID: string, file: File) {
     return (
       file?.ownerID === String(userID) ||
-      !!file?.readonlyUsers?.find((user) => user.ID === userID) ||
+      !!file?.readonlyUsers?.find((user) => String(user.ID) === userID) ||
+      !!file?.sharedUsers?.find((user) => String(user.ID) === userID) ||
       file?.isPublic
     );
   }
@@ -68,6 +69,22 @@ export class FilesService {
         ID: ID,
       },
     });
+  }
+
+  async getFileByIDWithAccess(userID: string, fileID: string): Promise<File> {
+    try {
+      const file = await this.fileRepository.findOne({
+        where: {
+          ID: fileID,
+        },
+      });
+      if (!this.canAccess(userID, file)) {
+        throw ErrorException.forbidden("You don't have access to this file");
+      }
+      return file;
+    } catch (err) {
+      throw err;
+    }
   }
 
   async getUserFiles(userID: string): Promise<File[]> {
@@ -114,7 +131,10 @@ export class FilesService {
   }
 
   async getFilesOfFolder(folderID: string, userID: string) {
-    const folder = await this.folderService.getFolderByID(folderID);
+    const folder = await this.folderService.getFolderByIDWithRelations(
+      folderID,
+      ['sharedUsers', 'readonlyUsers'],
+    );
     if (!this.folderService.canAccess(userID, folder)) {
       throw ErrorException.forbidden("You don't have access to this folder");
     }
@@ -418,6 +438,67 @@ export class FilesService {
       await this.fileRepository.save({ ...file, isPublic });
 
       return 'Change general access successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getUserSharedFiles(userID: string) {
+    try {
+      const sharedFiles = [
+        ...(await this.fileRepository.find({
+          where: {
+            sharedUsers: {
+              ID: userID,
+            },
+          },
+        })),
+        ...(await this.fileRepository.find({
+          where: {
+            readonlyUsers: {
+              ID: userID,
+            },
+          },
+        })),
+      ];
+      return sharedFiles;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async starFile(userID: string, fileID: string) {
+    try {
+      const file = await this.fileRepository.findOne({
+        where: {
+          ID: fileID,
+        },
+        relations: ['starredUsers'],
+      });
+
+      if (!this.canAccess(userID, file)) {
+        throw ErrorException.forbidden("You don't have access to this file");
+      }
+
+      const user = await this.userService.getOneByID(userID);
+      file.starredUsers.push(user);
+      await this.fileRepository.save(file);
+      return 'Star file successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getStarredFiles(userID: string) {
+    try {
+      const files = await this.fileRepository.find({
+        where: {
+          starredUsers: {
+            ID: userID,
+          },
+        },
+      });
+      return files;
     } catch (err) {
       throw err;
     }

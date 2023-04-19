@@ -44,6 +44,7 @@ export class FoldersService {
     return (
       folder?.ownerID === String(userID) ||
       !!folder?.readonlyUsers?.find((user: User) => user.ID === userID) ||
+      !!folder?.sharedUsers?.find((user: User) => user.ID === userID) ||
       folder?.isPublic
     );
   }
@@ -172,7 +173,12 @@ export class FoldersService {
     folderID: string,
   ): Promise<Folder[]> {
     try {
-      const currentFolder = await this.getFolderByID(folderID);
+      const currentFolder = await this.folderRepository.findOne({
+        where: {
+          ID: folderID,
+        },
+        relations: ['sharedUsers', 'readonlyUsers'],
+      });
       if (!this.canAccess(userID, currentFolder)) {
         throw ErrorException.forbidden(
           'You are not allowed to access this folder',
@@ -310,10 +316,14 @@ export class FoldersService {
     userMessage: string,
   ) {
     try {
-      const folder = await this.getFolderByID(folderID);
+      const folder = await this.getFolderByIDWithRelations(folderID, [
+        'sharedUsers',
+        'readonlyUsers',
+        'subFolders',
+      ]);
       if (!this.canModify(userID, folder)) {
         throw ErrorException.forbidden(
-          'You are not allowed to make this folder public',
+          'You are not allowed to modify this folder',
         );
       }
       const sentUser = await this.userService.getOneByID(userID);
@@ -341,6 +351,18 @@ export class FoldersService {
           );
         }
       });
+
+      // Recursively add user to subfolders
+      for (const subFolder of folder.subFolders) {
+        await this.addUserToFolderSharedUsers(
+          userID,
+          subFolder.ID,
+          sharedUserID,
+          shouldSendMail,
+          userMessage,
+        );
+      }
+
       await this.folderRepository.save(folder);
 
       return 'Add user to folder successfully';
@@ -387,6 +409,16 @@ export class FoldersService {
           );
         }
       });
+
+      for (const subFolder of folder.subFolders) {
+        await this.addUserToFolderReadOnlyUsers(
+          userID,
+          subFolder.ID,
+          readonlyUserIDs,
+          shouldSendMail,
+          userMessage,
+        );
+      }
       await this.folderRepository.save(folder);
 
       return 'Add user to read only successfully';
@@ -454,6 +486,7 @@ export class FoldersService {
       const folder = await this.getFolderByIDWithRelations(folderID, [
         'sharedUsers',
         'readonlyUsers',
+        'subFolders',
       ]);
       if (!this.canModify(userID, folder)) {
         throw ErrorException.forbidden(
@@ -467,6 +500,11 @@ export class FoldersService {
       folder.readonlyUsers = folder.readonlyUsers.filter(
         (user) => String(user.ID) !== targetUserID,
       );
+
+      // Recursively remove the user from subfolders
+      for (const subFolder of folder.subFolders) {
+        await this.removeUserFromFolder(userID, subFolder.ID, targetUserID);
+      }
 
       await this.folderRepository.save(folder);
       return 'Remove user from folder successfully';
@@ -534,6 +572,82 @@ export class FoldersService {
         async (file) => await this.fileService.deleteFileForever(file.ID),
       );
       return 'Empty trash successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getUserSharedFolders(userID: string) {
+    try {
+      let sharedFolders = await this.folderRepository.find({
+        where: {
+          sharedUsers: {
+            ID: userID,
+          },
+        },
+        relations: ['rootFolder'],
+      });
+      sharedFolders = sharedFolders.filter((folder, _, arr) => {
+        return !arr.find(
+          (sharedFolder) => sharedFolder.ID === folder.rootFolder?.ID,
+        );
+      });
+
+      let readonlyFolders = await this.folderRepository.find({
+        where: {
+          readonlyUsers: {
+            ID: userID,
+          },
+        },
+        relations: ['rootFolder'],
+      });
+
+      readonlyFolders = readonlyFolders.filter((folder, _, arr) => {
+        return !arr.find(
+          (readonlyFolder) => readonlyFolder.ID === folder.rootFolder?.ID,
+        );
+      });
+
+      return [...sharedFolders, ...readonlyFolders];
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async starFolder(userID: string, folderID: string) {
+    try {
+      const folder = await this.folderRepository.findOne({
+        where: {
+          ID: folderID,
+        },
+        relations: ['starredUsers'],
+      });
+
+      if (!this.canAccess(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to access this folder',
+        );
+      }
+
+      const user = await this.userService.getOneByID(userID);
+      folder.starredUsers.push(user);
+      await this.folderRepository.save(folder);
+      return 'Star folder successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getStarredFolders(userID: string): Promise<Folder[]> {
+    try {
+      const folders = await this.folderRepository.find({
+        where: {
+          starredUsers: {
+            ID: userID,
+          },
+        },
+      });
+      return folders;
     } catch (err) {
       throw err;
     }
