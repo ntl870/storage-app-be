@@ -503,4 +503,23 @@ export class FilesService {
       throw err;
     }
   }
+
+  async unStarFile(userID: string, fileID: string) {
+    try {
+      const file = await this.fileRepository.findOne({
+        where: {
+          ID: fileID,
+        },
+        relations: ['starredUsers'],
+      });
+
+      file.starredUsers = file.starredUsers.filter(
+        (user) => user.ID !== userID,
+      );
+      await this.fileRepository.save(file);
+      return 'Unstar file successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
 }

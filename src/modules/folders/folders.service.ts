@@ -11,7 +11,12 @@ import { createWriteStream, mkdirSync } from 'fs';
 import { FilesService } from '@modules/files/files.service';
 import * as archiver from 'archiver';
 import { Response } from 'express';
-import { deleteFile, deleteFolder, getEnvVar } from '@utils/tools';
+import {
+  deleteFile,
+  deleteFolder,
+  getEnvVar,
+  renameFolder,
+} from '@utils/tools';
 import { User } from '@modules/user/user.entity';
 import { ErrorException } from '@utils/exceptions';
 import { UserService } from '@modules/user/user.service';
@@ -648,6 +653,44 @@ export class FoldersService {
         },
       });
       return folders;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async removeStarredFolder(userID: string, folderID: string) {
+    try {
+      const folder = await this.folderRepository.findOne({
+        where: {
+          ID: folderID,
+        },
+        relations: ['starredUsers'],
+      });
+      folder.starredUsers = folder.starredUsers.filter(
+        (user) => user.ID !== userID,
+      );
+      await this.folderRepository.save(folder);
+      return 'Remove starred folder successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async renameFolder(userID: string, folderID: string, name: string) {
+    try {
+      const folder = await this.getFolderByID(folderID);
+      if (!this.canModify(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to rename this folder',
+        );
+      }
+      const oldPath = folder.path;
+      const newPath = oldPath.replace(folder.name, name);
+      renameFolder(oldPath, newPath);
+      await this.folderRepository.update(folderID, {
+        name,
+      });
+      return 'Rename folder successfully';
     } catch (err) {
       throw err;
     }

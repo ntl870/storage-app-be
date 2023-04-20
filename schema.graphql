@@ -94,6 +94,8 @@ type Mutation {
   changeUserRoleInFolder(folderID: String!, targetUserID: String!, targetRole: String!): String!
   emptyUserTrash: String!
   starFolder(folderID: String!): String!
+  unstarFolder(folderID: String!): String!
+  renameFolder(folderID: String!, name: String!): String!
   uploadFile(file: Upload!, folderID: String!): File!
   moveFileToTrash(fileID: String!): File!
   restoreFileFromTrash(fileID: String!): File!
@@ -104,6 +106,7 @@ type Mutation {
   removeUserFromFile(fileID: String!, targetUserID: String!): String!
   setGeneralAccessOfFile(fileID: String!, isPublic: Boolean!): String!
   starFile(fileID: String!): String!
+  unstarFile(fileID: String!): String!
 }
 
 input NewFolderInput {

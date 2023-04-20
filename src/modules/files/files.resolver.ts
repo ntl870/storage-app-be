@@ -179,4 +179,10 @@ export class FilesResolver {
   async starFile(@CurrentUser() user: User, @Args('fileID') fileID: string) {
     return await this.filesService.starFile(user.ID, fileID);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async unstarFile(@CurrentUser() user: User, @Args('fileID') fileID: string) {
+    return await this.filesService.unStarFile(user.ID, fileID);
+  }
 }

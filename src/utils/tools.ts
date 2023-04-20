@@ -1,5 +1,5 @@
 import { hashSync, compareSync } from 'bcrypt';
-import { rmSync, unlinkSync } from 'fs';
+import { renameSync, rmSync, unlinkSync } from 'fs';
 import { EnvVar } from 'src/types';
 
 export const hashPassword = (password: string, salt = 10) =>
@@ -77,4 +77,12 @@ export const deleteFile = (path: string) => {
 
 export const deleteFolder = (path: string) => {
   rmSync(path, { recursive: true });
+};
+
+export const renameFolder = (oldPath: string, newPath: string) => {
+  try {
+    renameSync(`${process.cwd()}${oldPath}`, `${process.cwd()}${newPath}`);
+  } catch (err) {
+    console.log(err);
+  }
 };

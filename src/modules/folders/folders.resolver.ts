@@ -183,4 +183,23 @@ export class FoldersResolver {
   async getStarredFolders(@CurrentUser() user: User) {
     return await this.folderService.getStarredFolders(user.ID);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async unstarFolder(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+  ) {
+    return await this.folderService.removeStarredFolder(user.ID, folderID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async renameFolder(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+    @Args('name') name: string,
+  ) {
+    return await this.folderService.renameFolder(user.ID, folderID, name);
+  }
 }
