@@ -247,7 +247,7 @@ export class FilesService {
 
         if (shouldSendMail) {
           const fileUrl = `http://localhost:3000/file/${fileID}`;
-          this.mailService.sendMail(
+          await this.mailService.sendMail(
             user.email,
             'File shared with you',
             getSharedFolderHtmlBody(sentUser, user, userMessage, fileUrl),
@@ -298,7 +298,7 @@ export class FilesService {
 
         if (shouldSendMail) {
           const fileUrl = `http://localhost:3000/file/${fileID}`;
-          this.mailService.sendMail(
+          await this.mailService.sendMail(
             user.email,
             'File shared with you',
             getSharedFolderHtmlBody(sentUser, user, userMessage, fileUrl),
@@ -518,6 +518,25 @@ export class FilesService {
       );
       await this.fileRepository.save(file);
       return 'Unstar file successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async renameFile(userID: string, fileID: string, name: string) {
+    try {
+      const file = await this.fileRepository.findOne({
+        where: {
+          ID: fileID,
+        },
+      });
+
+      if (!this.canModify(userID, file)) {
+        throw ErrorException.forbidden("You don't have access to this file");
+      }
+
+      await this.fileRepository.save({ ...file, name });
+      return 'Rename file successfully';
     } catch (err) {
       throw err;
     }
