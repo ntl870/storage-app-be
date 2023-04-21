@@ -202,4 +202,13 @@ export class FoldersResolver {
   ) {
     return await this.folderService.renameFolder(user.ID, folderID, name);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async makeCopyOfFolder(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+  ) {
+    return await this.folderService.makeCopyOfFolder(user.ID, folderID);
+  }
 }

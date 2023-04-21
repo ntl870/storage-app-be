@@ -8,6 +8,7 @@ import {
   UploadFolderInput,
 } from './folders.types';
 import { createWriteStream, mkdirSync } from 'fs';
+import { copyFolder } from '@utils/tools';
 import { FilesService } from '@modules/files/files.service';
 import * as archiver from 'archiver';
 import { Response } from 'express';
@@ -195,7 +196,6 @@ export class FoldersService {
             ID: folderID,
           },
         },
-        relations: ['subFolders'],
       });
     } catch (err) {
       throw err;
@@ -691,6 +691,37 @@ export class FoldersService {
         name,
       });
       return 'Rename folder successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async makeCopyOfFolder(userID: string, folderID: string) {
+    try {
+      const folder = await this.getFolderByIDWithRelations(folderID, [
+        'files',
+        'subFolders',
+        'rootFolder',
+      ]);
+      if (!this.canAccess(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to make copy of this folder',
+        );
+      }
+      const newFolderPath = folder.path.replace(
+        folder.name,
+        'Copy of ' + folder.name,
+      );
+      const a = await this.folderRepository.save({
+        ...folder,
+        ID: undefined,
+        name: 'Copy of ' + folder.name,
+        path: newFolderPath,
+      });
+      console.log(a);
+      copyFolder(folder.path, newFolderPath);
+
+      return 'Make copy of folder successfully';
     } catch (err) {
       throw err;
     }

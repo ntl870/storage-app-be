@@ -1,5 +1,7 @@
 import { hashSync, compareSync } from 'bcrypt';
-import { renameSync, rmSync, unlinkSync } from 'fs';
+import { copyFileSync, renameSync, rmSync, unlinkSync } from 'fs';
+import { ncp } from 'ncp';
+
 import { EnvVar } from 'src/types';
 
 export const hashPassword = (password: string, salt = 10) =>
@@ -24,6 +26,8 @@ export const getFileType = (url: string) => {
       return 'jpg';
     case 'png':
       return 'png';
+    case 'svg':
+      return 'svg';
     case 'gif':
       return 'gif';
     case 'mp4':
@@ -82,6 +86,16 @@ export const deleteFolder = (path: string) => {
 export const renameFolder = (oldPath: string, newPath: string) => {
   try {
     renameSync(`${process.cwd()}${oldPath}`, `${process.cwd()}${newPath}`);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const copyFolder = (oldPath: string, newPath: string) => {
+  try {
+    ncp(`${process.cwd()}${oldPath}`, `${process.cwd()}${newPath}`, (err) => {
+      if (err) throw err;
+    });
   } catch (err) {
     console.log(err);
   }

@@ -96,6 +96,7 @@ type Mutation {
   starFolder(folderID: String!): String!
   unstarFolder(folderID: String!): String!
   renameFolder(folderID: String!, name: String!): String!
+  makeCopyOfFolder(folderID: String!): String!
   uploadFile(file: Upload!, folderID: String!): File!
   moveFileToTrash(fileID: String!): File!
   restoreFileFromTrash(fileID: String!): File!
