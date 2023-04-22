@@ -40,4 +40,12 @@ export class User extends BaseEntity {
   @Field(() => String, { nullable: true })
   @Column({ nullable: true })
   avatar: string;
+
+  @Field()
+  @Column({ default: 1 })
+  currentPackage: number;
+
+  @Field()
+  @Column()
+  stripeCustomerID?: string;
 }

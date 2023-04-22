@@ -19,7 +19,9 @@ export class UserService {
     this.userRepository = getRepository(User);
   }
 
-  async create(input: NewUserInput): Promise<User> {
+  async create(
+    input: NewUserInput & { stripeCustomerID: string },
+  ): Promise<User> {
     const newUser = await this.userRepository.save({
       ...input,
       password: hashPassword(input.password),

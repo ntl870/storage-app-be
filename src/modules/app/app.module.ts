@@ -12,6 +12,10 @@ import { getEnvVar } from '../../utils/tools';
 import { EnvVar } from 'src/types';
 import { ConfigModule } from '@nestjs/config';
 import { FoldersModule } from '@modules/folders/folders.module';
+import { StripeProviderModule } from '@modules/shared/stripe-provider/stripe-provider.module';
+import { StripePaymentModule } from '@modules/stripe-payment/stripe-payment.module';
+import { PackagesModule } from '@modules/packages/packages.module';
+import { TransactionsModule } from '@modules/transactions/transactions.module';
 
 @Module({
   imports: [
@@ -30,6 +34,10 @@ import { FoldersModule } from '@modules/folders/folders.module';
     FilesModule,
     ConfigModule,
     FoldersModule,
+    StripeProviderModule,
+    StripePaymentModule,
+    PackagesModule,
+    TransactionsModule,
   ],
   controllers: [],
   providers: [AppService, JwtService, JwtStrategy],
