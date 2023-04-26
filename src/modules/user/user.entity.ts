@@ -1,4 +1,5 @@
 import { Folder } from '@modules/folders/folders.entity';
+import { Package } from '@modules/packages/entities/package.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
 import {
   BaseEntity,
@@ -42,8 +43,13 @@ export class User extends BaseEntity {
   avatar: string;
 
   @Field()
-  @Column({ default: 1 })
-  currentPackage: number;
+  @ManyToOne(() => Package, (pkg) => pkg)
+  @JoinColumn()
+  currentPackage: Package;
+
+  @Field(() => Number)
+  @Column({ default: 0, type: 'bigint' })
+  storageUsed: number;
 
   @Field()
   @Column()

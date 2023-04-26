@@ -3,7 +3,7 @@ import { getRepository } from 'src/db/db';
 import { In, Like, Repository } from 'typeorm';
 import { NewUserInput } from '../auth/auth.types';
 import { User } from './user.entity';
-import { hashPassword } from 'src/utils/tools';
+import { getFolderSize, hashPassword } from 'src/utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import * as fs from 'fs';
 import { UserSearchPaginationResponse } from './user.type';
@@ -64,7 +64,7 @@ export class UserService {
       where: {
         ID: userID,
       },
-      relations: ['rootFolder'],
+      relations: ['rootFolder', 'currentPackage'],
     });
     return user;
   }
@@ -86,5 +86,15 @@ export class UserService {
     const hasMore = (page + 1) * limit < total;
 
     return { results: users, hasMore };
+  }
+
+  async updateUserUsedStorage(userID: string) {
+    const user = await this.getOneByID(userID);
+    const rootFolder = await this.folderService.getFolderByID(
+      user.rootFolder.ID,
+    );
+    const storageUsed = getFolderSize(rootFolder.path);
+    user.storageUsed = storageUsed;
+    await this.save(user);
   }
 }

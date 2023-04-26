@@ -8,7 +8,7 @@ import {
   UploadFolderInput,
 } from './folders.types';
 import { createWriteStream, mkdirSync } from 'fs';
-import { copyFolder } from '@utils/tools';
+import { copyFolder, getFolderSize } from '@utils/tools';
 import { FilesService } from '@modules/files/files.service';
 import * as archiver from 'archiver';
 import { Response } from 'express';

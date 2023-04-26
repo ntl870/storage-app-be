@@ -20,7 +20,7 @@ export class StripePaymentService {
       throw new Error('User not found');
     }
 
-    if (user.currentPackage >= packageId) {
+    if (user.currentPackage.ID >= packageId) {
       throw new Error('Cannot downgrade package');
     }
 

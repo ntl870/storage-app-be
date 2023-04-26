@@ -5,7 +5,7 @@ import { getRepository } from '@db/db';
 import { Upload } from 'graphql-upload';
 import { Folder } from '@modules/folders/folders.entity';
 import { createWriteStream } from 'fs';
-import { deleteFile, getFileType } from '@utils/tools';
+import { deleteFile, getFilesizeInBytes, getFileType } from '@utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import { ErrorException } from '@utils/exceptions';
 import { Response } from 'express';
@@ -107,6 +107,7 @@ export class FilesService {
     if (!this.folderService.canModify(userID, rootFolder)) {
       throw ErrorException.forbidden("You don't have access to this folder");
     }
+    const ownerID = rootFolder.ownerID;
     const { createReadStream, filename } = await file;
 
     try {
@@ -118,12 +119,19 @@ export class FilesService {
           .on('finish', () => resolve(path))
           .on('error', reject),
       );
+      const fileOwner = await this.userService.getOneByID(ownerID);
+      const fileSize = getFilesizeInBytes(path);
+
+      // Update user storage
+      await this.userService.updateUserUsedStorage(fileOwner.ID);
+
       const newFile = new File();
       newFile.name = filename;
       newFile.folder = rootFolder;
       newFile.url = path;
-      newFile.ownerID = String(userID);
+      newFile.ownerID = ownerID;
       newFile.fileType = getFileType(path);
+      newFile.fileSize = fileSize;
       return await this.create(newFile);
     } catch (err) {
       throw err;

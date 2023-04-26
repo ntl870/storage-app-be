@@ -19,6 +19,10 @@ export class PackagesService {
     return 'ok';
   }
 
+  async getPackageByID(ID: number) {
+    return await this.packageRepository.findOne({ where: { ID } });
+  }
+
   async findAll() {
     return await this.packageRepository.find();
   }

@@ -11,6 +11,7 @@ type File {
   ownerID: String!
   isTrash: Boolean!
   isPublic: Boolean!
+  fileSize: Float!
   sharedUsers: [User!]
   readonlyUsers: [User!]
   starredUsers: [User!]
@@ -31,6 +32,14 @@ type Folder {
   starredUsers: [User!]
 }
 
+type Package {
+  ID: Float!
+  price: Float!
+  name: String!
+  maxStorage: Float!
+  detail: String!
+}
+
 type User {
   ID: String!
   name: String!
@@ -38,16 +47,9 @@ type User {
   password: String!
   rootFolder: Folder
   avatar: String
-  currentPackage: Float!
+  currentPackage: Package!
+  storageUsed: Float!
   stripeCustomerID: String!
-}
-
-type Package {
-  ID: Float!
-  price: Float!
-  name: String!
-  maxStorage: Float!
-  detail: String!
 }
 
 type PeopleWithAccessResponse {

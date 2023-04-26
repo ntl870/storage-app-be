@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { StripePaymentService } from './stripe-payment.service';
-import { StripePaymentResolver } from './stripe-payment.resolover';
+import { StripePaymentResolver } from './stripe-payment.resolver';
 import { UserModule } from '@modules/user/user.module';
 import { PackagesModule } from '@modules/packages/packages.module';
 

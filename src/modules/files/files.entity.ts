@@ -52,6 +52,10 @@ export class File extends BaseEntity {
   @Column({ default: false })
   isPublic: boolean;
 
+  @Field()
+  @Column({ nullable: true })
+  fileSize: number;
+
   @Field(() => [User], { nullable: true })
   @ManyToMany(() => User, (user) => user)
   @JoinTable()

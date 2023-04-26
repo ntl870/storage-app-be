@@ -1,23 +1,22 @@
-import { Path } from '@nestjs/config';
 import { Package } from '../entities/package.entity';
 
 export const packagesData: Partial<Package>[] = [
   {
     name: 'Basic',
     price: 0,
-    maxStorage: 5,
     detail: '5GB Storage',
+    maxStorage: 5,
   },
   {
     name: 'Standard',
-    price: 100,
-    detail: '10GB Storage extra',
-    maxStorage: 10,
+    price: 10,
+    detail: '20GB Storage extra',
+    maxStorage: 20,
   },
   {
     name: 'Premium',
-    price: 200,
-    maxStorage: 20,
-    detail: '20GB Storage extra',
+    price: 30,
+    detail: '50GB Storage extra',
+    maxStorage: 50,
   },
 ];
