@@ -7,7 +7,7 @@ import { getFolderSize, hashPassword } from 'src/utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import * as fs from 'fs';
 import { UserSearchPaginationResponse } from './user.type';
-import { Folder } from '@modules/folders/folders.entity';
+
 @Injectable()
 export class UserService {
   userRepository: Repository<User>;

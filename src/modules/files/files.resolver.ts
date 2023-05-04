@@ -185,4 +185,37 @@ export class FilesResolver {
   async unstarFile(@CurrentUser() user: User, @Args('fileID') fileID: string) {
     return await this.filesService.unStarFile(user.ID, fileID);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async renameFile(
+    @CurrentUser() user: User,
+    @Args('fileID') fileID: string,
+    @Args('newName') newName: string,
+  ) {
+    return await this.filesService.renameFile(user.ID, fileID, newName);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async makeCopyOfFile(
+    @CurrentUser() user: User,
+    @Args('fileID') fileID: string,
+  ) {
+    return await this.filesService.makeCopyOfFile(user.ID, fileID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async moveFileToNewFolder(
+    @CurrentUser() user: User,
+    @Args('fileID') fileID: string,
+    @Args('targetFolderID') targetFolderID: string,
+  ) {
+    return await this.filesService.moveFileToFolder(
+      user.ID,
+      fileID,
+      targetFolderID,
+    );
+  }
 }

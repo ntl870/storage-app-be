@@ -4,8 +4,13 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { getRepository } from '@db/db';
 import { Upload } from 'graphql-upload';
 import { Folder } from '@modules/folders/folders.entity';
-import { createWriteStream } from 'fs';
-import { deleteFile, getFilesizeInBytes, getFileType } from '@utils/tools';
+import { createWriteStream, copyFileSync } from 'fs';
+import {
+  deleteFile,
+  getFilesizeInBytes,
+  getFileType,
+  moveFileToNewFolder,
+} from '@utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import { ErrorException } from '@utils/exceptions';
 import { Response } from 'express';
@@ -548,5 +553,73 @@ export class FilesService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async makeCopyOfFile(userID: string, fileID: string) {
+    const file = await this.fileRepository.findOne({
+      where: {
+        ID: fileID,
+      },
+      relations: ['readonlyUsers', 'sharedUsers', 'folder'],
+    });
+
+    if (!this.canAccess(userID, file)) {
+      throw ErrorException.forbidden("You don't have access to this file");
+    }
+
+    const newFilePath = file.url.replace(file.name, 'Copy of ' + file.name);
+
+    await this.fileRepository.save({
+      ...file,
+      ID: undefined,
+      name: 'Copy of ' + file.name,
+      url: newFilePath,
+      ownerID: file.ownerID,
+    });
+
+    copyFileSync(
+      `${process.cwd()}${file.url}`,
+      `${process.cwd()}${newFilePath}`,
+    );
+
+    return 'Make copy of file successfully';
+  }
+
+  async moveFileToFolder(
+    userID: string,
+    fileID: string,
+    targetFolderID: string,
+  ) {
+    const file = await this.fileRepository.findOne({
+      where: {
+        ID: fileID,
+      },
+      relations: ['readonlyUsers', 'sharedUsers'],
+    });
+    if (!this.canModify(userID, file)) {
+      throw ErrorException.forbidden('You are not allowed to move this file');
+    }
+
+    const targetFolder = await this.folderService.getFolderByID(targetFolderID);
+
+    if (!this.folderService.canModify(userID, targetFolder)) {
+      throw ErrorException.forbidden('You are not allowed to move this file');
+    }
+
+    const oldPath = file.url;
+
+    const newPath = oldPath.replace(
+      file.url,
+      targetFolder.path + '/' + file.name,
+    );
+
+    moveFileToNewFolder(oldPath, newPath, file.name);
+
+    await this.fileRepository.update(fileID, {
+      url: newPath,
+      folder: targetFolder,
+    });
+
+    return 'Move file to folder successfully';
   }
 }

@@ -6,6 +6,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Folder } from './folders.entity';
 import { FoldersService } from './folders.service';
 import {
+  GetFoldersByOwnerIDPaginationResponse,
   NewFolderInput,
   PeopleWithAccessResponse,
   UploadFolderInput,
@@ -210,5 +211,35 @@ export class FoldersResolver {
     @Args('folderID') folderID: string,
   ) {
     return await this.folderService.makeCopyOfFolder(user.ID, folderID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async moveFolder(
+    @CurrentUser() user: User,
+    @Args('folderID') folderID: string,
+    @Args('targetFolderID') targetFolderID: string,
+  ) {
+    return await this.folderService.moveFolder(
+      user.ID,
+      folderID,
+      targetFolderID,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => GetFoldersByOwnerIDPaginationResponse)
+  async getAllUserFoldersPagination(
+    @CurrentUser() user: User,
+    @Args('search') search: string,
+    @Args('page') page: number,
+    @Args('limit') limit: number,
+  ) {
+    return await this.folderService.getFoldersPaginationByOwnerID(
+      user.ID,
+      search,
+      page,
+      limit,
+    );
   }
 }

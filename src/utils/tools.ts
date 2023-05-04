@@ -1,11 +1,12 @@
 import { hashSync, compareSync } from 'bcrypt';
 import {
-  copyFileSync,
+  readFileSync,
   readdirSync,
   renameSync,
   rmSync,
   statSync,
   unlinkSync,
+  writeFileSync,
 } from 'fs';
 import { ncp } from 'ncp';
 
@@ -133,4 +134,43 @@ export const getFolderSize = (folderPath: string) => {
   }
 
   return totalSize;
+};
+
+export const moveFolderToNewFolder = (
+  oldPath: string,
+  newPath: string,
+  folderName: string,
+) => {
+  try {
+    renameSync(
+      `${process.cwd()}${oldPath}/${folderName}`,
+      `${process.cwd()}${newPath}/${folderName}`,
+    );
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const moveFileToNewFolder = (
+  oldPath: string,
+  newPath: string,
+  fileName: string,
+) => {
+  try {
+    renameSync(
+      `${process.cwd()}${oldPath}/${fileName}`,
+      `${process.cwd()}${newPath}/${fileName}`,
+    );
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const copyFileSync = (
+  sourceFilePath: string,
+  destinationFilePath: string,
+) => {
+  const fileContent = readFileSync(`${process.cwd()}/${sourceFilePath}`);
+
+  writeFileSync(`${process.cwd()}/${destinationFilePath}`, fileContent);
 };

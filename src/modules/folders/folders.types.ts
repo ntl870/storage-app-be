@@ -1,6 +1,7 @@
 import { User } from '@modules/user/user.entity';
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { GraphQLUpload, Upload } from 'graphql-upload';
+import { Folder } from './folders.entity';
 
 @InputType()
 export class NewFolderInput {
@@ -45,4 +46,13 @@ export class PeopleWithAccessResponse {
 
   @Field(() => Boolean)
   isPublic: boolean;
+}
+
+@ObjectType()
+export class GetFoldersByOwnerIDPaginationResponse {
+  @Field(() => [Folder])
+  results: Folder[];
+
+  @Field()
+  hasMore: boolean;
 }

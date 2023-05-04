@@ -1,14 +1,15 @@
 import { getRepository } from '@db/db';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { Folder } from './folders.entity';
 import {
+  GetFoldersByOwnerIDPaginationResponse,
   NewFolderInput,
   PeopleWithAccessResponse,
   UploadFolderInput,
 } from './folders.types';
 import { createWriteStream, mkdirSync } from 'fs';
-import { copyFolder, getFolderSize } from '@utils/tools';
+import { copyFolder, getFolderSize, moveFolderToNewFolder } from '@utils/tools';
 import { FilesService } from '@modules/files/files.service';
 import * as archiver from 'archiver';
 import { Response } from 'express';
@@ -196,6 +197,7 @@ export class FoldersService {
             ID: folderID,
           },
         },
+        relations: ['rootFolder'],
       });
     } catch (err) {
       throw err;
@@ -712,16 +714,74 @@ export class FoldersService {
         folder.name,
         'Copy of ' + folder.name,
       );
-      const a = await this.folderRepository.save({
+      await this.folderRepository.save({
         ...folder,
         ID: undefined,
         name: 'Copy of ' + folder.name,
         path: newFolderPath,
       });
-      console.log(a);
+
       copyFolder(folder.path, newFolderPath);
 
       return 'Make copy of folder successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async moveFolder(userID: string, folderID: string, targetFolderID: string) {
+    try {
+      const folder = await this.getFolderByID(folderID);
+      if (!this.canModify(userID, folder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to move this folder',
+        );
+      }
+      const targetFolder = await this.getFolderByID(targetFolderID);
+      if (!this.canModify(userID, targetFolder)) {
+        throw ErrorException.forbidden(
+          'You are not allowed to move this folder',
+        );
+      }
+      const oldPath = folder.path;
+
+      const newPath = targetFolder.path + '/' + folder.name;
+
+      moveFolderToNewFolder(oldPath, newPath, folder.name);
+
+      await this.folderRepository.update(folderID, {
+        path: newPath,
+        rootFolder: targetFolder,
+      });
+      return 'Move folder successfully';
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getFoldersPaginationByOwnerID(
+    userID: string,
+    search: string,
+    page: number,
+    limit: number,
+  ): Promise<GetFoldersByOwnerIDPaginationResponse> {
+    try {
+      const [folders, total] = await this.folderRepository.findAndCount({
+        where: [
+          { name: Like(`%${search}%`) },
+          {
+            ownerID: userID,
+          },
+        ],
+        take: limit,
+        skip: (page - 1) * limit,
+      });
+      const hasMore = total > page * limit;
+
+      return {
+        results: folders,
+        hasMore,
+      };
     } catch (err) {
       throw err;
     }

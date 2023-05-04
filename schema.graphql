@@ -59,6 +59,11 @@ type PeopleWithAccessResponse {
   isPublic: Boolean!
 }
 
+type GetFoldersByOwnerIDPaginationResponse {
+  results: [Folder!]!
+  hasMore: Boolean!
+}
+
 type UserSearchPaginationResponse {
   results: [User!]!
   hasMore: Boolean!
@@ -82,6 +87,7 @@ type Query {
   getPeopleWithAccessToFolder(folderID: String!): PeopleWithAccessResponse!
   getUserSharedFolders: [Folder!]!
   getStarredFolders: [Folder!]!
+  getAllUserFoldersPagination(search: String!, page: Float!, limit: Float!): GetFoldersByOwnerIDPaginationResponse!
   getFileByID(ID: String!): File!
   getFilesByFolder(folderID: String!): [File!]!
   getUserTrashFiles: [File!]!
@@ -110,6 +116,7 @@ type Mutation {
   unstarFolder(folderID: String!): String!
   renameFolder(folderID: String!, name: String!): String!
   makeCopyOfFolder(folderID: String!): String!
+  moveFolder(folderID: String!, targetFolderID: String!): String!
   uploadFile(file: Upload!, folderID: String!): File!
   moveFileToTrash(fileID: String!): File!
   restoreFileFromTrash(fileID: String!): File!
@@ -121,6 +128,9 @@ type Mutation {
   setGeneralAccessOfFile(fileID: String!, isPublic: Boolean!): String!
   starFile(fileID: String!): String!
   unstarFile(fileID: String!): String!
+  renameFile(fileID: String!, newName: String!): String!
+  makeCopyOfFile(fileID: String!): String!
+  moveFileToNewFolder(fileID: String!, targetFolderID: String!): String!
   createCheckoutSession(packageId: Float!): String!
   bulkCreatePackages: String!
 }
