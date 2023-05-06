@@ -9,6 +9,7 @@ import {
   GetFoldersByOwnerIDPaginationResponse,
   NewFolderInput,
   PeopleWithAccessResponse,
+  SearchFilesAndFoldersResponse,
   UploadFolderInput,
 } from './folders.types';
 import { ErrorException } from '@utils/exceptions';
@@ -241,5 +242,11 @@ export class FoldersResolver {
       page,
       limit,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => SearchFilesAndFoldersResponse)
+  async searchFilesAndFolders(@Args('search') search: string) {
+    return await this.folderService.searchFilesAndFolders(search);
   }
 }

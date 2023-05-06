@@ -786,4 +786,22 @@ export class FoldersService {
       throw err;
     }
   }
+
+  async searchFilesAndFolders(search: string) {
+    try {
+      const folders = await this.folderRepository.find({
+        where: {
+          name: Like(`%${search}%`),
+        },
+      });
+      const files = await this.fileService.searchFiles(search);
+
+      return {
+        folders,
+        files,
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
 }

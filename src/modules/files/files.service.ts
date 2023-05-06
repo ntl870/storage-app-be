@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { File } from '@modules/files/files.entity';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { getRepository } from '@db/db';
 import { Upload } from 'graphql-upload';
 import { Folder } from '@modules/folders/folders.entity';
@@ -36,17 +36,19 @@ export class FilesService {
 
   canModify(userID: string, file: File) {
     return (
-      file?.ownerID === String(userID) ||
-      !!file?.sharedUsers?.find((user) => String(user.ID) === userID) ||
+      String(file?.ownerID) === String(userID) ||
+      !!file?.sharedUsers?.find((user) => String(user.ID) === String(userID)) ||
       file?.isPublic
     );
   }
 
   canAccess(userID: string, file: File) {
     return (
-      file?.ownerID === String(userID) ||
-      !!file?.readonlyUsers?.find((user) => String(user.ID) === userID) ||
-      !!file?.sharedUsers?.find((user) => String(user.ID) === userID) ||
+      String(file?.ownerID) === String(userID) ||
+      !!file?.readonlyUsers?.find(
+        (user) => String(user.ID) === String(userID),
+      ) ||
+      !!file?.sharedUsers?.find((user) => String(user.ID) === String(userID)) ||
       file?.isPublic
     );
   }
@@ -73,6 +75,15 @@ export class FilesService {
       where: {
         ID: ID,
       },
+    });
+  }
+
+  async getFileDetail(fileID: string): Promise<File> {
+    return await this.fileRepository.findOne({
+      where: {
+        ID: fileID,
+      },
+      relations: ['folder', 'sharedUsers', 'readonlyUsers', 'owner'],
     });
   }
 
@@ -137,6 +148,7 @@ export class FilesService {
       newFile.ownerID = ownerID;
       newFile.fileType = getFileType(path);
       newFile.fileSize = fileSize;
+      newFile.owner = fileOwner;
       return await this.create(newFile);
     } catch (err) {
       throw err;
@@ -621,5 +633,18 @@ export class FilesService {
     });
 
     return 'Move file to folder successfully';
+  }
+
+  async searchFiles(search: string) {
+    try {
+      const [files, fileCount] = await this.fileRepository.find({
+        where: {
+          name: Like(`%${search}%`),
+        },
+      });
+      return [files, fileCount];
+    } catch (err) {
+      throw err;
+    }
   }
 }

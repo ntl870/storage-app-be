@@ -9,6 +9,7 @@ type File {
   url: String!
   fileType: String!
   ownerID: String!
+  owner: User!
   isTrash: Boolean!
   isPublic: Boolean!
   fileSize: Float!
@@ -64,6 +65,12 @@ type GetFoldersByOwnerIDPaginationResponse {
   hasMore: Boolean!
 }
 
+type SearchFilesAndFoldersResponse {
+  folders: [Folder!]!
+  files: [File!]!
+  hasMore: Boolean!
+}
+
 type UserSearchPaginationResponse {
   results: [User!]!
   hasMore: Boolean!
@@ -88,6 +95,7 @@ type Query {
   getUserSharedFolders: [Folder!]!
   getStarredFolders: [Folder!]!
   getAllUserFoldersPagination(search: String!, page: Float!, limit: Float!): GetFoldersByOwnerIDPaginationResponse!
+  searchFilesAndFolders(search: String!): SearchFilesAndFoldersResponse!
   getFileByID(ID: String!): File!
   getFilesByFolder(folderID: String!): [File!]!
   getUserTrashFiles: [File!]!
@@ -95,6 +103,7 @@ type Query {
   getFileByIDWithAccess(fileID: String!): File!
   getUserSharedFiles: [File!]!
   getStarredFiles: [File!]!
+  getFileDetail(fileID: String!): File!
   getAllPackages: [Package!]!
 }
 
@@ -131,8 +140,8 @@ type Mutation {
   renameFile(fileID: String!, newName: String!): String!
   makeCopyOfFile(fileID: String!): String!
   moveFileToNewFolder(fileID: String!, targetFolderID: String!): String!
-  createCheckoutSession(packageId: Float!): String!
   bulkCreatePackages: String!
+  createCheckoutSession(packageId: Float!): String!
 }
 
 input NewFolderInput {

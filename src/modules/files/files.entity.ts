@@ -44,6 +44,11 @@ export class File extends BaseEntity {
   @Column({ nullable: true })
   ownerID: string;
 
+  @Field(() => User)
+  @ManyToOne(() => User, (user) => user)
+  @JoinColumn()
+  owner: User;
+
   @Field()
   @Column({ default: false })
   isTrash: boolean;

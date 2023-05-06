@@ -1,4 +1,5 @@
 import { User } from '@modules/user/user.entity';
+import { File } from '@modules/files/files.entity';
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { GraphQLUpload, Upload } from 'graphql-upload';
 import { Folder } from './folders.entity';
@@ -54,5 +55,17 @@ export class GetFoldersByOwnerIDPaginationResponse {
   results: Folder[];
 
   @Field()
+  hasMore: boolean;
+}
+
+@ObjectType()
+export class SearchFilesAndFoldersResponse {
+  @Field(() => [Folder])
+  folders: Folder[];
+
+  @Field(() => [File])
+  files: File[];
+
+  @Field(() => Boolean)
   hasMore: boolean;
 }

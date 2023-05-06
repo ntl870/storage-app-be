@@ -218,4 +218,10 @@ export class FilesResolver {
       targetFolderID,
     );
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => File)
+  async getFileDetail(@Args('fileID') fileID: string) {
+    return await this.filesService.getFileDetail(fileID);
+  }
 }

@@ -7,6 +7,7 @@ import { getFolderSize, hashPassword } from 'src/utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import * as fs from 'fs';
 import { UserSearchPaginationResponse } from './user.type';
+import { PackagesService } from '@modules/packages/packages.service';
 
 @Injectable()
 export class UserService {
@@ -15,6 +16,8 @@ export class UserService {
   constructor(
     @Inject(forwardRef(() => FoldersService))
     private readonly folderService: FoldersService,
+    @Inject(forwardRef(() => PackagesService))
+    private readonly packageService: PackagesService,
   ) {
     this.userRepository = getRepository(User);
   }
@@ -37,7 +40,12 @@ export class UserService {
       recursive: true,
     });
     newUser.rootFolder = rootFolder;
-
+    const pkg = await this.packageService.packageRepository.findOne({
+      where: {
+        ID: 1,
+      },
+    });
+    newUser.currentPackage = pkg;
     return await this.userRepository.save(newUser);
   }
 

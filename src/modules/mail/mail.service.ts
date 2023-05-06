@@ -23,7 +23,6 @@ export class MailService {
   async sendMail(to: string, subject: string, html: string) {
     try {
       const accessToken = (await this.oauth2Client.getAccessToken()).token;
-
       this.transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
