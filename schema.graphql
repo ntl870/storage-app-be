@@ -16,7 +16,14 @@ type File {
   sharedUsers: [User!]
   readonlyUsers: [User!]
   starredUsers: [User!]
+  createdDate: DateTime
+  modifiedDate: DateTime
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Folder {
   ID: String!
@@ -24,13 +31,16 @@ type Folder {
   rootFolder: Folder
   files: [File!]
   subFolders: [Folder!]
-  ownerID: String!
+  ownerID: String
+  owner: User
   path: String!
   isTrash: Boolean!
   sharedUsers: [User!]
   readonlyUsers: [User!]
   isPublic: Boolean!
   starredUsers: [User!]
+  createdDate: DateTime
+  modifiedDate: DateTime
 }
 
 type Package {
@@ -66,9 +76,8 @@ type GetFoldersByOwnerIDPaginationResponse {
 }
 
 type SearchFilesAndFoldersResponse {
-  folders: [Folder!]!
-  files: [File!]!
-  hasMore: Boolean!
+  folders: [Folder!]
+  files: [File!]
 }
 
 type UserSearchPaginationResponse {
@@ -96,6 +105,7 @@ type Query {
   getStarredFolders: [Folder!]!
   getAllUserFoldersPagination(search: String!, page: Float!, limit: Float!): GetFoldersByOwnerIDPaginationResponse!
   searchFilesAndFolders(search: String!): SearchFilesAndFoldersResponse!
+  getFolderDetail(folderID: String!): Folder!
   getFileByID(ID: String!): File!
   getFilesByFolder(folderID: String!): [File!]!
   getUserTrashFiles: [File!]!
@@ -110,6 +120,7 @@ type Query {
 type Mutation {
   login(email: String!, password: String!): String!
   signup(email: String!, password: String!, name: String!): NewUserReturn!
+  updateUser(input: UpdateUserPayload!): User!
   createFolder(input: NewFolderInput!): Folder!
   uploadFolder(input: UploadFolderInput!): String!
   moveFolderToTrash(folderID: String!): String!
@@ -142,6 +153,11 @@ type Mutation {
   moveFileToNewFolder(fileID: String!, targetFolderID: String!): String!
   bulkCreatePackages: String!
   createCheckoutSession(packageId: Float!): String!
+}
+
+input UpdateUserPayload {
+  name: String!
+  avatar: String!
 }
 
 input NewFolderInput {

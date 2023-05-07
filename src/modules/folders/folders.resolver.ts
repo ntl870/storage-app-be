@@ -249,4 +249,10 @@ export class FoldersResolver {
   async searchFilesAndFolders(@Args('search') search: string) {
     return await this.folderService.searchFilesAndFolders(search);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => Folder)
+  async getFolderDetail(@Args('folderID') folderID: string) {
+    return await this.folderService.getFolderDetail(folderID);
+  }
 }

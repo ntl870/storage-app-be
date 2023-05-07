@@ -60,12 +60,9 @@ export class GetFoldersByOwnerIDPaginationResponse {
 
 @ObjectType()
 export class SearchFilesAndFoldersResponse {
-  @Field(() => [Folder])
-  folders: Folder[];
+  @Field(() => [Folder], { nullable: true })
+  folders?: Folder[];
 
-  @Field(() => [File])
-  files: File[];
-
-  @Field(() => Boolean)
-  hasMore: boolean;
+  @Field(() => [File], { nullable: true })
+  files?: File[];
 }

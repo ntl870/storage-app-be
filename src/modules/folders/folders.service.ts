@@ -9,7 +9,7 @@ import {
   UploadFolderInput,
 } from './folders.types';
 import { createWriteStream, mkdirSync } from 'fs';
-import { copyFolder, getFolderSize, moveFolderToNewFolder } from '@utils/tools';
+import { copyFolder, moveFolderToNewFolder } from '@utils/tools';
 import { FilesService } from '@modules/files/files.service';
 import * as archiver from 'archiver';
 import { Response } from 'express';
@@ -41,17 +41,23 @@ export class FoldersService {
 
   canModify(userID: string, folder: Folder) {
     return (
-      folder?.ownerID === String(userID) ||
-      !!folder?.sharedUsers?.find((user: User) => user.ID === userID) ||
+      String(folder?.ownerID) === String(userID) ||
+      !!folder?.sharedUsers?.find(
+        (user: User) => String(user.ID) === String(userID),
+      ) ||
       folder?.isPublic
     );
   }
 
   canAccess(userID: string, folder: Folder) {
     return (
-      folder?.ownerID === String(userID) ||
-      !!folder?.readonlyUsers?.find((user: User) => user.ID === userID) ||
-      !!folder?.sharedUsers?.find((user: User) => user.ID === userID) ||
+      String(folder?.ownerID) === String(userID) ||
+      !!folder?.readonlyUsers?.find(
+        (user: User) => String(user.ID) === String(userID),
+      ) ||
+      !!folder?.sharedUsers?.find(
+        (user: User) => String(user.ID) === String(userID),
+      ) ||
       folder?.isPublic
     );
   }
@@ -71,9 +77,14 @@ export class FoldersService {
           'You are not allowed to create a folder in this folder',
         );
       }
+
+      const owner = await this.userService.getOneByID(
+        rootFolder?.ownerID || userID,
+      );
       const newFolder = await this.folderRepository.save({
         name: input.name,
         ownerID: rootFolder?.ownerID || userID,
+        owner,
         rootFolder,
       });
       const path = !!rootFolder
@@ -795,11 +806,24 @@ export class FoldersService {
         },
       });
       const files = await this.fileService.searchFiles(search);
-
       return {
         folders,
         files,
       };
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getFolderDetail(folderID: string) {
+    try {
+      const folder = await this.getFolderByIDWithRelations(folderID, [
+        'files',
+        'subFolders',
+        'rootFolder',
+        'owner',
+      ]);
+      return folder;
     } catch (err) {
       throw err;
     }

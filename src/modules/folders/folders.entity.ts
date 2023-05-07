@@ -2,6 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
@@ -9,6 +10,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { File } from '@modules/files/files.entity';
 import { User } from '@modules/user/user.entity';
@@ -46,9 +48,14 @@ export class Folder extends BaseEntity {
   @JoinColumn()
   subFolders: Folder[];
 
-  @Field()
-  @Column()
+  @Field({ nullable: true })
+  @Column({ nullable: true })
   ownerID: string;
+
+  @Field(() => User, { nullable: true })
+  @JoinColumn()
+  @ManyToOne(() => User, (user) => user)
+  owner: User;
 
   @Field(() => String)
   @Column({ nullable: true })
@@ -76,4 +83,12 @@ export class Folder extends BaseEntity {
   @ManyToMany(() => User, (user) => user)
   @JoinTable()
   starredUsers: User[];
+
+  @Field(() => Date, { nullable: true })
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdDate: Date;
+
+  @Field(() => Date, { nullable: true })
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  modifiedDate: Date;
 }

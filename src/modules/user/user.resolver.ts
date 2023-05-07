@@ -3,12 +3,12 @@ import { FilesService } from '@modules/files/files.service';
 import { Folder } from '@modules/folders/folders.entity';
 import { FoldersService } from '@modules/folders/folders.service';
 import { UseGuards } from '@nestjs/common';
-import { Args, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from 'src/decorators/CurrentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from './user.entity';
 import { UserService } from './user.service';
-import { UserSearchPaginationResponse } from './user.type';
+import { UpdateUserPayload, UserSearchPaginationResponse } from './user.type';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -62,5 +62,14 @@ export class UserResolver {
       page,
       limit,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => User)
+  async updateUser(
+    @CurrentUser() user: User,
+    @Args('input') input: UpdateUserPayload,
+  ) {
+    return await this.userService.updateUserProfile(user.ID, input);
   }
 }

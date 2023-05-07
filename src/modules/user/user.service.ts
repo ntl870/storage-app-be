@@ -6,7 +6,7 @@ import { User } from './user.entity';
 import { getFolderSize, hashPassword } from 'src/utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import * as fs from 'fs';
-import { UserSearchPaginationResponse } from './user.type';
+import { UpdateUserPayload, UserSearchPaginationResponse } from './user.type';
 import { PackagesService } from '@modules/packages/packages.service';
 
 @Injectable()
@@ -104,5 +104,12 @@ export class UserService {
     const storageUsed = getFolderSize(rootFolder.path);
     user.storageUsed = storageUsed;
     await this.save(user);
+  }
+
+  async updateUserProfile(userID: string, input: UpdateUserPayload) {
+    const user = await this.getOneByID(userID);
+    user.name = input.name;
+    user.avatar = input.avatar;
+    return await this.save(user);
   }
 }

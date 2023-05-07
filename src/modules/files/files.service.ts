@@ -637,12 +637,12 @@ export class FilesService {
 
   async searchFiles(search: string) {
     try {
-      const [files, fileCount] = await this.fileRepository.find({
+      const files = await this.fileRepository.find({
         where: {
           name: Like(`%${search}%`),
         },
       });
-      return [files, fileCount];
+      return files;
     } catch (err) {
       throw err;
     }

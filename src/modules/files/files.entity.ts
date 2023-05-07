@@ -4,12 +4,14 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import {
   BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @ObjectType()
@@ -75,4 +77,18 @@ export class File extends BaseEntity {
   @ManyToMany(() => User, (user) => user)
   @JoinTable()
   starredUsers: User[];
+
+  @Field(() => Date, { nullable: true })
+  @CreateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdDate: Date;
+
+  @Field(() => Date, { nullable: true })
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  modifiedDate: Date;
 }
