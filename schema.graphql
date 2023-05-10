@@ -2,6 +2,21 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Computer {
+  ID: String!
+  macAddress: String!
+  hostname: String!
+  storagePath: String!
+  user: User!
+  createdDate: DateTime
+  modifiedDate: DateTime
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type File {
   ID: String!
   name: String!
@@ -19,11 +34,6 @@ type File {
   createdDate: DateTime
   modifiedDate: DateTime
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type Folder {
   ID: String!
@@ -61,6 +71,7 @@ type User {
   currentPackage: Package!
   storageUsed: Float!
   stripeCustomerID: String!
+  computers: [Computer!]
 }
 
 type PeopleWithAccessResponse {

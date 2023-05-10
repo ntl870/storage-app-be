@@ -1,3 +1,4 @@
+import { Computer } from '@modules/computers/computers.entity';
 import { Folder } from '@modules/folders/folders.entity';
 import { Package } from '@modules/packages/entities/package.entity';
 import { Field, ObjectType } from '@nestjs/graphql';
@@ -6,9 +7,8 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -54,4 +54,9 @@ export class User extends BaseEntity {
   @Field()
   @Column()
   stripeCustomerID?: string;
+
+  @Field(() => [Computer], { nullable: true })
+  @OneToMany(() => Computer, (computer) => computer.user)
+  @JoinColumn()
+  computers: Computer[];
 }

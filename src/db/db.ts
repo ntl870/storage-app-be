@@ -5,6 +5,7 @@ import { EnvVar } from 'src/types';
 import { Folder } from '@modules/folders/folders.entity';
 import { File } from '@modules/files/files.entity';
 import { Package } from '@modules/packages/entities/package.entity';
+import { Computer } from '@modules/computers/computers.entity';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -16,7 +17,7 @@ export const AppDataSource = new DataSource({
   migrations: ['dist/migrations/**/*.js'],
   synchronize: true,
   logging: false,
-  entities: [User, Folder, File, Package],
+  entities: [User, Folder, File, Package, Computer],
   subscribers: [],
 });
 

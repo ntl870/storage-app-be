@@ -9,7 +9,6 @@ import {
   writeFileSync,
 } from 'fs';
 import { ncp } from 'ncp';
-
 import { EnvVar } from 'src/types';
 
 export const hashPassword = (password: string, salt = 10) =>
@@ -89,7 +88,11 @@ export const deleteFile = (path: string) => {
 };
 
 export const deleteFolder = (path: string) => {
-  rmSync(path, { recursive: true });
+  try {
+    rmSync(path, { recursive: true });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 export const renameFolder = (oldPath: string, newPath: string) => {
@@ -103,7 +106,7 @@ export const renameFolder = (oldPath: string, newPath: string) => {
 export const copyFolder = (oldPath: string, newPath: string) => {
   try {
     ncp(`${process.cwd()}${oldPath}`, `${process.cwd()}${newPath}`, (err) => {
-      if (err) throw err;
+      if (err) console.log(err);
     });
   } catch (err) {
     console.log(err);
