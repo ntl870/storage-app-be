@@ -4,9 +4,10 @@ import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { getRepository } from '@db/db';
 import { Upload } from 'graphql-upload';
 import { Folder } from '@modules/folders/folders.entity';
-import { createWriteStream, copyFileSync } from 'fs';
+import { createWriteStream, copyFileSync, writeFileSync } from 'fs';
 import {
   deleteFile,
+  getEnvVar,
   getFilesizeInBytes,
   getFileType,
   moveFileToNewFolder,
@@ -19,6 +20,7 @@ import { PeopleWithAccessResponse } from '@modules/folders/folders.types';
 import { UserService } from '@modules/user/user.service';
 import { MailService } from '@modules/mail/mail.service';
 import { getSharedFolderHtmlBody } from '@utils/mails';
+import { EnvVar } from 'src/types';
 
 @Injectable()
 export class FilesService {
@@ -112,6 +114,42 @@ export class FilesService {
       });
     } catch (err) {
       throw err;
+    }
+  }
+
+  async saveFileToStorageRestful(
+    file: Express.Multer.File,
+    userID: string,
+    rootFolderID: string,
+  ) {
+    try {
+      const rootFolder = await this.folderService.getFolderByID(rootFolderID);
+      if (!this.folderService.canModify(userID, rootFolder)) {
+        throw ErrorException.forbidden("You don't have access to this folder");
+      }
+
+      const { originalname } = file;
+      const fileName =
+        originalname.split('/')[originalname.split('/').length - 1];
+      const path = `/files/${rootFolder.ownerID}/${originalname}`;
+
+      writeFileSync(`${process.cwd()}${path}`, file.buffer);
+      const fileOwner = await this.userService.getOneByID(rootFolder.ownerID);
+
+      // Update user storage
+      await this.userService.updateUserUsedStorage(fileOwner.ID);
+
+      const newFile = new File();
+      newFile.name = fileName;
+      newFile.url = path;
+      newFile.ownerID = rootFolder.ownerID;
+      newFile.owner = fileOwner;
+      newFile.folder = rootFolder;
+      newFile.fileSize = file.size;
+      newFile.fileType = getFileType(originalname);
+      return await this.create(newFile);
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -271,12 +309,15 @@ export class FilesService {
         }
 
         if (shouldSendMail) {
-          const fileUrl = `http://localhost:3000/file/${fileID}`;
-          await this.mailService.sendMail(
-            user.email,
-            'File shared with you',
-            getSharedFolderHtmlBody(sentUser, user, userMessage, fileUrl),
-          );
+          const fileUrl = `${getEnvVar(EnvVar.FRONT_END_URL)}/file/${fileID}`;
+          await this.mailService.sendMail(user.email, 'File shared with you', {
+            fullName: user.name,
+            senderName: sentUser.name,
+            senderMail: sentUser.email,
+            type: 'file',
+            message: userMessage,
+            url: fileUrl,
+          });
         }
       });
 
@@ -322,12 +363,15 @@ export class FilesService {
         }
 
         if (shouldSendMail) {
-          const fileUrl = `http://localhost:3000/file/${fileID}`;
-          await this.mailService.sendMail(
-            user.email,
-            'File shared with you',
-            getSharedFolderHtmlBody(sentUser, user, userMessage, fileUrl),
-          );
+          const fileUrl = `${getEnvVar(EnvVar.FRONT_END_URL)}/file/${fileID}`;
+          await this.mailService.sendMail(user.email, 'File shared with you', {
+            fullName: user.name,
+            senderName: sentUser.name,
+            senderMail: sentUser.email,
+            type: 'file',
+            message: userMessage,
+            url: fileUrl,
+          });
         }
       });
       await this.fileRepository.save(file);

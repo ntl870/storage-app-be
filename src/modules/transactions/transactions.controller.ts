@@ -1,12 +1,14 @@
 import { Controller, Get, Param, Redirect, Req, Res } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
+import { getEnvVar } from '@utils/tools';
+import { EnvVar } from 'src/types';
 
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Get('/success/:checkoutId')
-  @Redirect('http://localhost:3000/transactions/success', 302)
+  @Redirect(`${getEnvVar(EnvVar.FRONT_END_URL)}/transaction-success`, 302)
   async transactionSuccess(@Param('checkoutId') checkoutId: string) {
     return await this.transactionsService.getTransactionByCheckoutId(
       checkoutId,

@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 ConfigModule.forRoot();
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './modules/app/app.module';
-import { graphqlUploadExpress } from 'graphql-upload';
 import { connectToDb } from './db/db';
 
 async function bootstrap() {
@@ -12,9 +11,9 @@ async function bootstrap() {
     await connectToDb();
 
     // initialize graphql-upload middleware
-    app.use(
-      graphqlUploadExpress({ maxFileSize: 100000000000000, maxFiles: 10000 }),
-    );
+    // app.use(
+    //   graphqlUploadExpress({ maxFileSize: 100000000000000, maxFiles: 10000 }),
+    // );
 
     await app.listen(8000);
   } catch (err) {

@@ -121,10 +121,10 @@ export class FoldersService {
 
     await Promise.all(
       input.folder.files.map(async (file) => {
-        return await this.fileService.saveFileToStorage(
+        return await this.fileService.saveFileToStorageRestful(
           file,
           userID,
-          rootFolder,
+          rootFolder.ID,
         );
       }),
     );
@@ -150,7 +150,7 @@ export class FoldersService {
     }
   }
 
-  async uploadFolder(userID: string, input: UploadFolderInput) {
+  async uploadFolder(userID: string, input: any) {
     try {
       const rootFolder = await this.getFolderByID(input.rootFolderID);
       if (!this.canModify(userID, rootFolder)) {
@@ -362,10 +362,18 @@ export class FoldersService {
           const folderUrl = `${getEnvVar(
             EnvVar.FRONT_END_URL,
           )}/folder/${folderID}`;
-          this.mailService.sendMail(
+
+          await this.mailService.sendMail(
             user.email,
             'Folder shared with you',
-            getSharedFolderHtmlBody(sentUser, user, userMessage, folderUrl),
+            {
+              fullName: user.name,
+              senderName: sentUser.name,
+              senderMail: sentUser.email,
+              type: 'folder',
+              message: userMessage,
+              url: folderUrl,
+            },
           );
         }
       });
@@ -419,11 +427,21 @@ export class FoldersService {
         }
 
         if (shouldSendMail) {
-          const folderUrl = `http://localhost:3000/folder/${folderID}`;
-          this.mailService.sendMail(
+          const folderUrl = `${getEnvVar(
+            EnvVar.FRONT_END_URL,
+          )}/file/${folderID}`;
+
+          await this.mailService.sendMail(
             user.email,
             'Folder shared with you',
-            getSharedFolderHtmlBody(sentUser, user, userMessage, folderUrl),
+            {
+              fullName: user.name,
+              senderName: sentUser.name,
+              senderMail: sentUser.email,
+              type: 'folder',
+              message: userMessage,
+              url: folderUrl,
+            },
           );
         }
       });

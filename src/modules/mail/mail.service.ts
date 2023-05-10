@@ -3,6 +3,8 @@ import { getEnvVar } from '@utils/tools';
 import * as nodemailer from 'nodemailer';
 import { EnvVar } from 'src/types';
 import { OAuth2Client } from 'google-auth-library';
+import * as path from 'path';
+import * as ejs from 'ejs';
 
 @Injectable()
 export class MailService {
@@ -20,7 +22,7 @@ export class MailService {
     });
   }
 
-  async sendMail(to: string, subject: string, html: string) {
+  async sendMail(to: string, subject: string, data: any) {
     try {
       const accessToken = (await this.oauth2Client.getAccessToken()).token;
       this.transporter = nodemailer.createTransport({
@@ -34,6 +36,7 @@ export class MailService {
           accessToken,
         },
       });
+      const html = await this.readEmailTemplate(data);
       const mailOptions: nodemailer.SendMailOptions = {
         from: `"Storage App Mail Bot" <${getEnvVar(EnvVar.MAIL_USER_NAME)}>`, // sender address
         to, // list of receivers
@@ -44,5 +47,13 @@ export class MailService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async readEmailTemplate(data) {
+    const pathReslove = path.resolve(__dirname, `./templates/shared.html`);
+    return ejs.renderFile(
+      `${process.cwd()}/src/modules/mail/templates/shared.html`,
+      data,
+    );
   }
 }
