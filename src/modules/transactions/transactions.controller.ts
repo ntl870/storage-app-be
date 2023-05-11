@@ -3,7 +3,7 @@ import { TransactionsService } from './transactions.service';
 import { getEnvVar } from '@utils/tools';
 import { EnvVar } from 'src/types';
 
-@Controller('transactions')
+@Controller('/api/transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
