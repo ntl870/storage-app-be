@@ -130,7 +130,7 @@ export class FilesService {
       const { originalname } = file;
       const fileName =
         originalname.split('/')[originalname.split('/').length - 1];
-      const path = `/files/${rootFolder.ownerID}/${originalname}`;
+      const path = `${rootFolder.path}/${fileName}`;
 
       writeFileSync(`${process.cwd()}${path}`, file.buffer);
       const fileOwner = await this.userService.getOneByID(rootFolder.ownerID);
