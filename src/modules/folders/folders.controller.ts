@@ -1,29 +1,22 @@
+import { JwtRestGuard } from '@modules/auth/guards/jwt-rest.guard';
 import {
   Controller,
   Get,
   Param,
   Post,
+  Query,
   Request,
   Res,
-  UseGuards,
-  UploadedFile,
-  UseInterceptors,
   UploadedFiles,
-  ArgumentsHost,
-  BadRequestException,
-  Catch,
-  HttpStatus,
-  Body,
-  Query,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { FoldersService } from './folders.service';
-import { Response } from 'express';
-import { JwtRestGuard } from '@modules/auth/guards/jwt-rest.guard';
-import { AnyFilesInterceptor, FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { groupFilesByFolder } from '@utils/tools';
+import { Response } from 'express';
+import { FoldersService } from './folders.service';
 
-@Controller('folders')
+@Controller('/api/folders')
 export class FoldersController {
   constructor(private readonly folderService: FoldersService) {}
 

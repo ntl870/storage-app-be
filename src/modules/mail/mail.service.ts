@@ -3,7 +3,6 @@ import { getEnvVar } from '@utils/tools';
 import * as nodemailer from 'nodemailer';
 import { EnvVar } from 'src/types';
 import { OAuth2Client } from 'google-auth-library';
-import * as path from 'path';
 import * as ejs from 'ejs';
 
 @Injectable()
@@ -50,7 +49,6 @@ export class MailService {
   }
 
   async readEmailTemplate(data) {
-    const pathReslove = path.resolve(__dirname, `./templates/shared.html`);
     return ejs.renderFile(
       `${process.cwd()}/src/modules/mail/templates/shared.html`,
       data,

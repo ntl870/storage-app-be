@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Redirect, Req, Res } from '@nestjs/common';
+import { Controller, Get, Param, Redirect } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { getEnvVar } from '@utils/tools';
 import { EnvVar } from 'src/types';

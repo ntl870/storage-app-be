@@ -1,22 +1,21 @@
+import { JwtRestGuard } from '@modules/auth/guards/jwt-rest.guard';
 import {
   Controller,
   Get,
   Param,
-  Res,
-  Request,
   Post,
-  UploadedFile,
-  UseInterceptors,
   Query,
+  Request,
+  Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { FilesService } from './files.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { JwtRestGuard } from '@modules/auth/guards/jwt-rest.guard';
-import { FoldersService } from '@modules/folders/folders.service';
 
-@Controller('files')
+@Controller('/api/files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 

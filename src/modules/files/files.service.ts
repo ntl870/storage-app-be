@@ -19,7 +19,6 @@ import { join } from 'path';
 import { PeopleWithAccessResponse } from '@modules/folders/folders.types';
 import { UserService } from '@modules/user/user.service';
 import { MailService } from '@modules/mail/mail.service';
-import { getSharedFolderHtmlBody } from '@utils/mails';
 import { EnvVar } from 'src/types';
 
 @Injectable()

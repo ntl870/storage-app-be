@@ -23,7 +23,6 @@ import { User } from '@modules/user/user.entity';
 import { ErrorException } from '@utils/exceptions';
 import { UserService } from '@modules/user/user.service';
 import { MailService } from '@modules/mail/mail.service';
-import { getSharedFolderHtmlBody } from '@utils/mails';
 import { EnvVar } from 'src/types';
 
 @Injectable()
