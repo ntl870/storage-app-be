@@ -16,6 +16,7 @@ import { StripeProviderModule } from '@modules/shared/stripe-provider/stripe-pro
 import { StripePaymentModule } from '@modules/stripe-payment/stripe-payment.module';
 import { PackagesModule } from '@modules/packages/packages.module';
 import { TransactionsModule } from '@modules/transactions/transactions.module';
+import { ComputersModule } from '@modules/computers/computers.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { TransactionsModule } from '@modules/transactions/transactions.module';
     StripePaymentModule,
     PackagesModule,
     TransactionsModule,
+    ComputersModule,
   ],
   controllers: [],
   providers: [AppService, JwtService, JwtStrategy],

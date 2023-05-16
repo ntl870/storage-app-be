@@ -32,6 +32,10 @@ export class Computer extends BaseEntity {
   @Column()
   storagePath: string;
 
+  @Field()
+  @Column()
+  name: string;
+
   @Field(() => User)
   @ManyToOne(() => User, (user) => user)
   @JoinColumn()

@@ -7,6 +7,7 @@ type Computer {
   macAddress: String!
   hostname: String!
   storagePath: String!
+  name: String!
   user: User!
   createdDate: DateTime
   modifiedDate: DateTime
@@ -164,6 +165,7 @@ type Mutation {
   moveFileToNewFolder(fileID: String!, targetFolderID: String!): String!
   bulkCreatePackages: String!
   createCheckoutSession(packageId: Float!): String!
+  connectComputer(input: ConnectComputerInput!): Computer!
 }
 
 input UpdateUserPayload {
@@ -189,3 +191,10 @@ input UploadFolder {
 
 """The `Upload` scalar type represents a file upload."""
 scalar Upload
+
+input ConnectComputerInput {
+  macAddress: String!
+  hostname: String!
+  storagePath: String!
+  name: String!
+}
