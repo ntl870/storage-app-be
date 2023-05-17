@@ -127,6 +127,7 @@ type Query {
   getStarredFiles: [File!]!
   getFileDetail(fileID: String!): File!
   getAllPackages: [Package!]!
+  getComputerByMacAddress(macAddress: String!): Computer!
 }
 
 type Mutation {

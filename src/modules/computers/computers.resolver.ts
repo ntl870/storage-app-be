@@ -1,4 +1,4 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ComputersService } from './computers.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt.guard';
@@ -18,5 +18,11 @@ export class ComputersResolver {
     @Args('input') input: ConnectComputerInput,
   ) {
     return this.computersService.connectComputer(user.ID, input);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => Computer)
+  async getComputerByMacAddress(@Args('macAddress') macAddress: string) {
+    return await this.computersService.getComputerByMacAddress(macAddress);
   }
 }
