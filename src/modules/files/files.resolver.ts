@@ -224,4 +224,13 @@ export class FilesResolver {
   async getFileDetail(@Args('fileID') fileID: string) {
     return await this.filesService.getFileDetail(fileID);
   }
+
+  // @UseGuards(JwtAuthGuard)
+  // @Mutation(() => File)
+  // async updateFile(
+  //   @Args('fileID') fileID: string,
+  //   @Args('input', { type: () => File }) input: File,
+  // ) {
+  //   return await this.filesService.updateFile(fileID, input);
+  // }
 }

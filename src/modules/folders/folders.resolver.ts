@@ -255,4 +255,10 @@ export class FoldersResolver {
   async getFolderDetail(@Args('folderID') folderID: string) {
     return await this.folderService.getFolderDetail(folderID);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => SearchFilesAndFoldersResponse)
+  async getAllFilesAndFoldersOfUser(@CurrentUser() user: User) {
+    return await this.folderService.getAllFilesAndFoldersOfUser(user.ID);
+  }
 }

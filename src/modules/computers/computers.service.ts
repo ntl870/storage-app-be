@@ -40,4 +40,11 @@ export class ComputersService {
       },
     });
   }
+
+  async removeComputer(macAddress: string): Promise<string> {
+    await this.computerRepository.delete({
+      macAddress,
+    });
+    return 'Computer removed successfully';
+  }
 }

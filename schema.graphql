@@ -118,6 +118,7 @@ type Query {
   getAllUserFoldersPagination(search: String!, page: Float!, limit: Float!): GetFoldersByOwnerIDPaginationResponse!
   searchFilesAndFolders(search: String!): SearchFilesAndFoldersResponse!
   getFolderDetail(folderID: String!): Folder!
+  getAllFilesAndFoldersOfUser: SearchFilesAndFoldersResponse!
   getFileByID(ID: String!): File!
   getFilesByFolder(folderID: String!): [File!]!
   getUserTrashFiles: [File!]!

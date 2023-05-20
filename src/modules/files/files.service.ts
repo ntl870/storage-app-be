@@ -4,7 +4,7 @@ import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { getRepository } from '@db/db';
 import { Upload } from 'graphql-upload';
 import { Folder } from '@modules/folders/folders.entity';
-import { createWriteStream, copyFileSync, writeFileSync } from 'fs';
+import { createWriteStream, copyFileSync, writeFileSync, renameSync } from 'fs';
 import {
   deleteFile,
   getEnvVar,
@@ -603,7 +603,15 @@ export class FilesService {
         throw ErrorException.forbidden("You don't have access to this file");
       }
 
-      await this.fileRepository.save({ ...file, name });
+      const newFileUrl = file.url.replace(file.name, name);
+
+      // Rename file
+      renameSync(
+        `${process.cwd()}/${file.url}`,
+        `${process.cwd()}/${newFileUrl}`,
+      );
+
+      await this.fileRepository.save({ ...file, name, url: newFileUrl });
       return 'Rename file successfully';
     } catch (err) {
       throw err;
@@ -686,6 +694,27 @@ export class FilesService {
         },
       });
       return files;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getAllFilesOfUser(userID: string) {
+    try {
+      const files = await this.fileRepository.find({
+        where: {
+          ownerID: userID,
+        },
+      });
+      return files;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async updateFile(fileID: string, input: File) {
+    try {
+      return await this.fileRepository.update(fileID, input);
     } catch (err) {
       throw err;
     }

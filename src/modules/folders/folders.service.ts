@@ -845,4 +845,23 @@ export class FoldersService {
       throw err;
     }
   }
+
+  async getAllFilesAndFoldersOfUser(userID: string) {
+    try {
+      const folders = await this.folderRepository.find({
+        where: {
+          owner: {
+            ID: userID,
+          },
+        },
+      });
+      const files = await this.fileService.getAllFilesOfUser(userID);
+      return {
+        folders,
+        files,
+      };
+    } catch (err) {
+      throw err;
+    }
+  }
 }
