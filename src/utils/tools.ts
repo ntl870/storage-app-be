@@ -161,10 +161,7 @@ export const moveFileToNewFolder = (
   fileName: string,
 ) => {
   try {
-    renameSync(
-      `${process.cwd()}${oldPath}/${fileName}`,
-      `${process.cwd()}${newPath}/${fileName}`,
-    );
+    renameSync(`${process.cwd()}${oldPath}`, `${process.cwd()}${newPath}`);
   } catch (err) {
     console.log(err);
   }

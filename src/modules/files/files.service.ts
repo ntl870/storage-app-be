@@ -602,7 +602,7 @@ export class FilesService {
       if (!this.canModify(userID, file)) {
         throw ErrorException.forbidden("You don't have access to this file");
       }
-
+      // change url but keep extension
       const newFileUrl = file.url.replace(file.name, name);
 
       // Rename file

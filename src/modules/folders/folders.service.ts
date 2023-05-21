@@ -719,6 +719,7 @@ export class FoldersService {
       renameFolder(oldPath, newPath);
       await this.folderRepository.update(folderID, {
         name,
+        path: newPath,
       });
       return 'Rename folder successfully';
     } catch (err) {
@@ -853,6 +854,7 @@ export class FoldersService {
           owner: {
             ID: userID,
           },
+          isTrash: false,
         },
       });
       const files = await this.fileService.getAllFilesOfUser(userID);
