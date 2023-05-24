@@ -129,6 +129,7 @@ type Query {
   getFileDetail(fileID: String!): File!
   getAllPackages: [Package!]!
   getComputerByMacAddress(macAddress: String!): Computer!
+  getUserComputers: [Computer!]!
 }
 
 type Mutation {
@@ -168,6 +169,7 @@ type Mutation {
   bulkCreatePackages: String!
   createCheckoutSession(packageId: Float!): String!
   connectComputer(input: ConnectComputerInput!): Computer!
+  removeComputer(macAddress: String!): String!
 }
 
 input UpdateUserPayload {

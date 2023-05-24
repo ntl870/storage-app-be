@@ -25,4 +25,19 @@ export class ComputersResolver {
   async getComputerByMacAddress(@Args('macAddress') macAddress: string) {
     return await this.computersService.getComputerByMacAddress(macAddress);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Query(() => [Computer])
+  async getUserComputers(@CurrentUser() user: User) {
+    return await this.computersService.getUserComputers(user.ID);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => String)
+  async removeComputer(
+    @CurrentUser() user: User,
+    @Args('macAddress') macAddress: string,
+  ) {
+    return await this.computersService.removeComputer(user.ID, macAddress);
+  }
 }

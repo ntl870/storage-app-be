@@ -33,6 +33,16 @@ export class ComputersService {
     return await this.createComputer(computer);
   }
 
+  async getUserComputers(userID) {
+    return await this.computerRepository.find({
+      where: {
+        user: {
+          ID: userID,
+        },
+      },
+    });
+  }
+
   async getComputerByMacAddress(macAddress: string): Promise<Computer> {
     return await this.computerRepository.findOne({
       where: {
@@ -41,8 +51,11 @@ export class ComputersService {
     });
   }
 
-  async removeComputer(macAddress: string): Promise<string> {
+  async removeComputer(userID: string, macAddress: string): Promise<string> {
     await this.computerRepository.delete({
+      user: {
+        ID: userID,
+      },
       macAddress,
     });
     return 'Computer removed successfully';
