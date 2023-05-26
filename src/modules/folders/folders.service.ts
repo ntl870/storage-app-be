@@ -8,7 +8,7 @@ import {
   PeopleWithAccessResponse,
   UploadFolderInput,
 } from './folders.types';
-import { createWriteStream, mkdirSync } from 'fs';
+import { createReadStream, createWriteStream, mkdirSync } from 'fs';
 import { copyFolder, moveFolderToNewFolder } from '@utils/tools';
 import { FilesService } from '@modules/files/files.service';
 import * as archiver from 'archiver';
@@ -240,9 +240,20 @@ export class FoldersService {
         output.on('close', () => resolve('close'));
         archive.finalize();
       });
-      res.download(zipFilePath, folder.name + '.zip', () => {
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename=${folder.name}.zip`,
+      );
+      res.setHeader('Content-Type', 'application/octet-stream');
+      res.setHeader('Transfer-Encoding', 'chunked');
+      const streamingFile = createReadStream(zipFilePath);
+      streamingFile.pipe(res);
+      streamingFile.on('end', () => {
         deleteFile(zipFilePath);
       });
+      // res.download(zipFilePath, folder.name + '.zip', () => {
+      //   deleteFile(zipFilePath);
+      // });
     } catch (err) {
       throw err;
     }

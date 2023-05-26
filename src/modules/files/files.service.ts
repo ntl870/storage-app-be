@@ -1,10 +1,16 @@
-import { forwardRef, Inject, Injectable, StreamableFile  } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, StreamableFile } from '@nestjs/common';
 import { File } from '@modules/files/files.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { getRepository } from '@db/db';
 import { Upload } from 'graphql-upload';
 import { Folder } from '@modules/folders/folders.entity';
-import { createWriteStream, copyFileSync, writeFileSync, renameSync,createReadStream } from 'fs';
+import {
+  createWriteStream,
+  copyFileSync,
+  writeFileSync,
+  renameSync,
+  createReadStream,
+} from 'fs';
 import {
   deleteFile,
   getEnvVar,
@@ -271,7 +277,7 @@ export class FilesService {
     // if (!this.canAccess(userID, file)) {
     //   throw ErrorException.forbidden("You don't have access to this file");
     // }
-      // Set the appropriate headers
+    // Set the appropriate headers
     res.setHeader('Content-Disposition', `attachment; filename=${file.name}`);
     res.setHeader('Content-Type', 'application/octet-stream');
     res.setHeader('Transfer-Encoding', 'chunked');
