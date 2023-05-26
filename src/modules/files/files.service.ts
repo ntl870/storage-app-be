@@ -4,7 +4,7 @@ import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { getRepository } from '@db/db';
 import { Upload } from 'graphql-upload';
 import { Folder } from '@modules/folders/folders.entity';
-import { createWriteStream, copyFileSync, writeFileSync, renameSync } from 'fs';
+import { createWriteStream, copyFileSync, writeFileSync, renameSync,createReadStream } from 'fs';
 import {
   deleteFile,
   getEnvVar,
@@ -271,7 +271,8 @@ export class FilesService {
     // if (!this.canAccess(userID, file)) {
     //   throw ErrorException.forbidden("You don't have access to this file");
     // }
-    return res.download(join(process.cwd(), `${file.url}`), file.name);
+    file.pipe(res);
+//     return res.download(join(process.cwd(), `${file.url}`), file.name);
   }
 
   async addUsersToReadOnlyFile(
