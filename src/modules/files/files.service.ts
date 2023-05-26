@@ -274,6 +274,7 @@ export class FilesService {
       // Set the appropriate headers
     res.setHeader('Content-Disposition', `attachment; filename=${file.name}`);
     res.setHeader('Content-Type', 'application/octet-stream');
+    res.setHeader('Transfer-Encoding', 'chunked');
     const streamingFile = createReadStream(join(process.cwd(), `${file.url}`));
     streamingFile.pipe(res);
   }
