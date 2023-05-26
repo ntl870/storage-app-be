@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, StreamableFile  } from '@nestjs/common';
 import { File } from '@modules/files/files.entity';
 import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { getRepository } from '@db/db';
@@ -272,8 +272,7 @@ export class FilesService {
     //   throw ErrorException.forbidden("You don't have access to this file");
     // }
     const streamingFile = createReadStream(join(process.cwd(), `${file.url}`));
-    streamingFile.pipe(res);
-    return;
+    return new StreamableFile(streamingFile);
   }
 
   async addUsersToReadOnlyFile(
