@@ -271,8 +271,11 @@ export class FilesService {
     // if (!this.canAccess(userID, file)) {
     //   throw ErrorException.forbidden("You don't have access to this file");
     // }
+      // Set the appropriate headers
+    res.setHeader('Content-Disposition', `attachment; filename=${file.name}`);
+    res.setHeader('Content-Type', 'application/octet-stream');
     const streamingFile = createReadStream(join(process.cwd(), `${file.url}`));
-    return new StreamableFile(streamingFile);
+    streamingFile.pipe(res);
   }
 
   async addUsersToReadOnlyFile(
