@@ -271,7 +271,7 @@ export class FilesService {
     // if (!this.canAccess(userID, file)) {
     //   throw ErrorException.forbidden("You don't have access to this file");
     // }
-    const streamingFile = createReadStream(join(process.cwd(), `${file.url}`), file.name);
+    const streamingFile = createReadStream(join(process.cwd(), `${file.url}`));
     streamingFile.pipe(res);
     return;
   }
