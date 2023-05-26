@@ -271,8 +271,9 @@ export class FilesService {
     // if (!this.canAccess(userID, file)) {
     //   throw ErrorException.forbidden("You don't have access to this file");
     // }
-    file.pipe(res);
-//     return res.download(join(process.cwd(), `${file.url}`), file.name);
+    const streamingFile = createReadStream(join(process.cwd(), `${file.url}`), file.name);
+    streamingFile.pipe(res);
+    return;
   }
 
   async addUsersToReadOnlyFile(
