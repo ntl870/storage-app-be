@@ -20,7 +20,7 @@ import { FoldersService } from './folders.service';
 export class FoldersController {
   constructor(private readonly folderService: FoldersService) {}
 
-  @UseGuards(JwtRestGuard)
+  // @UseGuards(JwtRestGuard)
   @Get(':folderID')
   async downloadFolder(
     @Request() req,
