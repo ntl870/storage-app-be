@@ -214,14 +214,14 @@ export class FoldersService {
     }
   }
 
-  async downloadFolder(res: Response, folderID: string, userID: string) {
+  async downloadFolder(res: Response, folderID: string, userID?: string) {
     try {
       const folder = await this.getFolderByID(folderID);
-      if (!this.canAccess(userID, folder)) {
-        throw ErrorException.forbidden(
-          'You are not allowed to download this folder',
-        );
-      }
+      // if (!this.canAccess(userID, folder)) {
+      //   throw ErrorException.forbidden(
+      //     'You are not allowed to download this folder',
+      //   );
+      // }
       const sourceDir = process.cwd() + folder.path;
       const zipFilePath = `${sourceDir}.zip`;
       const output = createWriteStream(sourceDir + '.zip');

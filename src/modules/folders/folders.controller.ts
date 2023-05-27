@@ -27,7 +27,7 @@ export class FoldersController {
     @Res() res: Response,
     @Param('folderID') folderID: string,
   ) {
-    await this.folderService.downloadFolder(res, folderID, req.user.ID);
+    await this.folderService.downloadFolder(res, folderID);
   }
 
   @UseGuards(JwtRestGuard)
