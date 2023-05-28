@@ -170,6 +170,7 @@ type Mutation {
   createCheckoutSession(packageId: Float!): String!
   connectComputer(input: ConnectComputerInput!): Computer!
   removeComputer(macAddress: String!): String!
+  updateComputerStoragePath(macAddress: String!, storagePath: String!): Computer!
 }
 
 input UpdateUserPayload {

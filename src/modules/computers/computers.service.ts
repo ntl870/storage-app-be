@@ -43,10 +43,16 @@ export class ComputersService {
     });
   }
 
-  async getComputerByMacAddress(macAddress: string): Promise<Computer> {
+  async getComputerByMacAddress(
+    userID: string,
+    macAddress: string,
+  ): Promise<Computer> {
     return await this.computerRepository.findOne({
       where: {
         macAddress,
+        user: {
+          ID: userID,
+        },
       },
     });
   }
@@ -59,5 +65,22 @@ export class ComputersService {
       macAddress,
     });
     return 'Computer removed successfully';
+  }
+
+  async updateComputerStoragePath(
+    userID: string,
+    macAddress: string,
+    storagePath: string,
+  ): Promise<Computer> {
+    const computer = await this.computerRepository.findOne({
+      where: {
+        user: {
+          ID: userID,
+        },
+        macAddress,
+      },
+    });
+    computer.storagePath = storagePath;
+    return await this.computerRepository.save(computer);
   }
 }

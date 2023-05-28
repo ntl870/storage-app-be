@@ -22,8 +22,14 @@ export class ComputersResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => Computer)
-  async getComputerByMacAddress(@Args('macAddress') macAddress: string) {
-    return await this.computersService.getComputerByMacAddress(macAddress);
+  async getComputerByMacAddress(
+    @CurrentUser() user: User,
+    @Args('macAddress') macAddress: string,
+  ) {
+    return await this.computersService.getComputerByMacAddress(
+      user.ID,
+      macAddress,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -39,5 +45,19 @@ export class ComputersResolver {
     @Args('macAddress') macAddress: string,
   ) {
     return await this.computersService.removeComputer(user.ID, macAddress);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Mutation(() => Computer)
+  async updateComputerStoragePath(
+    @CurrentUser() user: User,
+    @Args('macAddress') macAddress: string,
+    @Args('storagePath') storagePath: string,
+  ) {
+    return await this.computersService.updateComputerStoragePath(
+      user.ID,
+      macAddress,
+      storagePath,
+    );
   }
 }
