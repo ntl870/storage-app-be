@@ -19,7 +19,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "run:prod": "pm2 start 'yarn start:prod'"
+    "run:prod": "pm2 delete api && pm2 start 'yarn start:prod' --name api"
   },
   "dependencies": {
     "@nestjs/apollo": "^10.1.7",
