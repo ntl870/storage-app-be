@@ -100,6 +100,7 @@ export class FilesService {
         where: {
           ID: fileID,
         },
+        relations: ['readonlyUsers', 'sharedUsers'],
       });
       if (!this.canAccess(userID, file)) {
         throw ErrorException.forbidden("You don't have access to this file");
