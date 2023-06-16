@@ -88,9 +88,10 @@ export class UserService {
   ): Promise<UserSearchPaginationResponse> {
     const [users, total] = await this.userRepository.findAndCount({
       where: [{ email: Like(`%${search}%`) }, { name: Like(`%${search}%`) }],
-      skip: page === 1 ? 0 : page * limit,
+      skip: (page - 1) * limit,
       take: limit,
     });
+
     const hasMore = (page + 1) * limit < total;
 
     return { results: users, hasMore, total };
