@@ -96,6 +96,18 @@ export class UserService {
     return { results: users, hasMore };
   }
 
+  async getUsersPagination(
+    page: number,
+    limit: number,
+  ): Promise<UserSearchPaginationResponse> {
+    const [users, total] = await this.userRepository.findAndCount({
+      skip: page === 1 ? 0 : page * limit,
+      take: limit,
+    });
+    const hasMore = (page + 1) * limit < total;
+    return { results: users, hasMore };
+  }
+
   async updateUserUsedStorage(userID: string) {
     const user = await this.getOneByID(userID);
     const rootFolder = await this.folderService.getFolderByID(

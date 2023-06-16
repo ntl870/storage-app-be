@@ -65,6 +65,15 @@ export class UserResolver {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Query(() => UserSearchPaginationResponse)
+  async getUsersPagination(
+    @Args('page') page: number,
+    @Args('limit') limit: number,
+  ) {
+    return await this.userService.getUsersPagination(page, limit);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => User)
   async updateUser(
     @CurrentUser() user: User,

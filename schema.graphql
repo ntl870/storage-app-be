@@ -110,6 +110,7 @@ type Query {
   getFoldersOfFolder(folderID: String!): [Folder!]!
   getUserFiles: [File!]!
   getUsersBySearchPagination(search: String!, page: Float!, limit: Float!): UserSearchPaginationResponse!
+  getUsersPagination(page: Float!, limit: Float!): UserSearchPaginationResponse!
   getUserTrashFolder: [Folder!]!
   getArrayOfRootFoldersName(folderID: String!): [Folder!]!
   getPeopleWithAccessToFolder(folderID: String!): PeopleWithAccessResponse!

@@ -1,16 +1,12 @@
-import { forwardRef, Inject, Injectable, StreamableFile } from '@nestjs/common';
-import { File } from '@modules/files/files.entity';
-import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { getRepository } from '@db/db';
-import { Upload } from 'graphql-upload';
+import { File } from '@modules/files/files.entity';
 import { Folder } from '@modules/folders/folders.entity';
-import {
-  createWriteStream,
-  copyFileSync,
-  writeFileSync,
-  renameSync,
-  createReadStream,
-} from 'fs';
+import { FoldersService } from '@modules/folders/folders.service';
+import { PeopleWithAccessResponse } from '@modules/folders/folders.types';
+import { MailService } from '@modules/mail/mail.service';
+import { UserService } from '@modules/user/user.service';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { ErrorException } from '@utils/exceptions';
 import {
   deleteFile,
   getEnvVar,
@@ -18,14 +14,18 @@ import {
   getFileType,
   moveFileToNewFolder,
 } from '@utils/tools';
-import { FoldersService } from '@modules/folders/folders.service';
-import { ErrorException } from '@utils/exceptions';
 import { Response } from 'express';
+import {
+  copyFileSync,
+  createReadStream,
+  createWriteStream,
+  renameSync,
+  writeFileSync,
+} from 'fs';
+import { Upload } from 'graphql-upload';
 import { join } from 'path';
-import { PeopleWithAccessResponse } from '@modules/folders/folders.types';
-import { UserService } from '@modules/user/user.service';
-import { MailService } from '@modules/mail/mail.service';
 import { EnvVar } from 'src/types';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 
 @Injectable()
 export class FilesService {
