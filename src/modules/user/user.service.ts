@@ -93,7 +93,7 @@ export class UserService {
     });
     const hasMore = (page + 1) * limit < total;
 
-    return { results: users, hasMore };
+    return { results: users, hasMore, total };
   }
 
   async getUsersPagination(
@@ -105,7 +105,7 @@ export class UserService {
       take: limit,
     });
     const hasMore = (page + 1) * limit < total;
-    return { results: users, hasMore };
+    return { results: users, hasMore, total };
   }
 
   async updateUserUsedStorage(userID: string) {

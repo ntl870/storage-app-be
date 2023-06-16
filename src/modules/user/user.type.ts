@@ -8,6 +8,9 @@ export class UserSearchPaginationResponse {
 
   @Field()
   hasMore: boolean;
+
+  @Field()
+  total: number;
 }
 
 @InputType()
