@@ -77,6 +77,15 @@ export class UserService {
     return user;
   }
 
+  async getUserByStripeCustomerID(stripeCustomerID: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: {
+        stripeCustomerID: stripeCustomerID,
+      },
+    });
+    return user;
+  }
+
   async getManyByArrayOfIDs(folderIDs: string[]): Promise<User[]> {
     return await this.userRepository.findBy({ ID: In(folderIDs) });
   }

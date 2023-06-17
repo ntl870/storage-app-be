@@ -8,5 +8,6 @@ import { PackagesModule } from '@modules/packages/packages.module';
   imports: [UserModule, PackagesModule],
   controllers: [TransactionsController],
   providers: [TransactionsService],
+  exports: [TransactionsService],
 })
 export class TransactionsModule {}

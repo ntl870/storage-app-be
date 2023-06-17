@@ -95,6 +95,7 @@ type SearchFilesAndFoldersResponse {
 type UserSearchPaginationResponse {
   results: [User!]!
   hasMore: Boolean!
+  total: Float!
 }
 
 type NewUserReturn {

@@ -14,3 +14,9 @@ export enum EnvVar {
   STRIPE_SECRET_KEY = 'STRIPE_SECRET_KEY',
   CLIENT_URL = 'CLIENT_URL',
 }
+
+export enum TRANSACTION_STATUS {
+  PENDING = 'pending',
+  SUCCESS = 'success',
+  FAILED = 'failed',
+}

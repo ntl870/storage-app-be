@@ -3,14 +3,20 @@ import { STRIPE_PROVIDER } from '@modules/shared/stripe-provider/constants/strip
 import { UserService } from '@modules/user/user.service';
 import { Inject, Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
+import { Repository } from 'typeorm';
+import { getRepository } from '../../db/db';
+import { Transaction } from './entities/transaction.entity';
 
 @Injectable()
 export class TransactionsService {
+  public transactionRepository: Repository<Transaction>;
   constructor(
     @Inject(STRIPE_PROVIDER) private readonly stripe: Stripe,
     private readonly userService: UserService,
     private readonly packagesService: PackagesService,
-  ) {}
+  ) {
+    this.transactionRepository = getRepository(Transaction);
+  }
 
   async getTransactionByCheckoutId(checkoutId: string) {
     const session = await this.stripe.checkout.sessions.retrieve(checkoutId);
