@@ -11,7 +11,7 @@ import { ComputersModule } from '../computers/computers.module';
     forwardRef(() => FoldersModule),
     forwardRef(() => FilesModule),
     forwardRef(() => PackagesModule),
-    ComputersModule
+    forwardRef(() => ComputersModule),
   ],
   providers: [UserService, UserResolver],
   exports: [UserService],

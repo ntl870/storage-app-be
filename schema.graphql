@@ -142,9 +142,9 @@ type Query {
   getStarredFiles: [File!]!
   getFileDetail(fileID: String!): File!
   getAllPackages: [Package!]!
-  getStatisticTransactions(dateFrom: String!, dateTo: String!): [StatisticTransaction!]!
   getComputerByMacAddress(macAddress: String!): Computer!
   getUserComputers: [Computer!]!
+  getStatisticTransactions(dateFrom: String!, dateTo: String!): [StatisticTransaction!]!
 }
 
 type Mutation {
@@ -182,10 +182,10 @@ type Mutation {
   makeCopyOfFile(fileID: String!): String!
   moveFileToNewFolder(fileID: String!, targetFolderID: String!): String!
   bulkCreatePackages: String!
-  createCheckoutSession(packageId: Float!): String!
   connectComputer(input: ConnectComputerInput!): Computer!
   removeComputer(macAddress: String!): String!
   updateComputerStoragePath(macAddress: String!, storagePath: String!): Computer!
+  createCheckoutSession(packageId: Float!): String!
 }
 
 input UpdateUserPayload {
