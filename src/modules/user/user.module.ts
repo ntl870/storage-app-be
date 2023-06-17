@@ -5,6 +5,7 @@ import { UserResolver } from './user.resolver';
 import { UserService } from './user.service';
 import { PackagesModule } from '@modules/packages/packages.module';
 import { ComputersModule } from '../computers/computers.module';
+import { TransactionsModule } from '../transactions/transactions.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { ComputersModule } from '../computers/computers.module';
     forwardRef(() => FilesModule),
     forwardRef(() => PackagesModule),
     forwardRef(() => ComputersModule),
+    forwardRef(() => TransactionsModule),
   ],
   providers: [UserService, UserResolver],
   exports: [UserService],

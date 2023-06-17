@@ -31,3 +31,29 @@ export class StatisticPackage {
   @Field()
   packages_name: string;
 }
+
+@ObjectType()
+export class StoragePercentage{
+  @Field()
+  used: number;
+
+  @Field()
+  total: number;
+}
+@ObjectType()
+export class SystemOverviews {
+  @Field()
+  totalUsers: number;
+
+  @Field()
+  totalTransactions: number;
+
+  @Field()
+  totalIncome: number;
+
+  @Field()
+  totalComputers: number;
+
+  @Field(() => StoragePercentage)
+  storagePercentage: StoragePercentage;
+}

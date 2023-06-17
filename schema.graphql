@@ -104,15 +104,28 @@ type StatisticPackage {
   packages_name: String!
 }
 
-type NewUserReturn {
-  name: String!
-  email: String!
-  accessToken: String!
+type StoragePercentage {
+  used: Float!
+  total: Float!
+}
+
+type SystemOverviews {
+  totalUsers: Float!
+  totalTransactions: Float!
+  totalIncome: Float!
+  totalComputers: Float!
+  storagePercentage: StoragePercentage!
 }
 
 type StatisticTransaction {
   amount: Float!
   date: String!
+}
+
+type NewUserReturn {
+  name: String!
+  email: String!
+  accessToken: String!
 }
 
 type Query {
@@ -124,6 +137,7 @@ type Query {
   getUsersBySearchPagination(search: String!, page: Float!, limit: Float!): UserSearchPaginationResponse!
   getUsersPagination(page: Float!, limit: Float!): UserSearchPaginationResponse!
   getStatisticPackages: [StatisticPackage!]!
+  getSystemOverviews: SystemOverviews!
   getUserTrashFolder: [Folder!]!
   getArrayOfRootFoldersName(folderID: String!): [Folder!]!
   getPeopleWithAccessToFolder(folderID: String!): PeopleWithAccessResponse!

@@ -7,9 +7,16 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from 'src/decorators/CurrentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { ComputersService } from '../computers/computers.service';
+import { TransactionsService } from '../transactions/transactions.service';
 import { User } from './user.entity';
 import { UserService } from './user.service';
-import { StatisticPackage, UpdateUserPayload, UserSearchPaginationResponse } from './user.type';
+import { check } from 'diskusage';
+import {
+  StatisticPackage,
+  SystemOverviews,
+  UpdateUserPayload,
+  UserSearchPaginationResponse,
+} from './user.type';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -17,7 +24,8 @@ export class UserResolver {
     private readonly userService: UserService,
     private readonly folderService: FoldersService,
     private readonly fileService: FilesService,
-    private readonly computerService: ComputersService
+    private readonly computerService: ComputersService,
+    private readonly transactionService: TransactionsService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -87,5 +95,44 @@ export class UserResolver {
   @Query(() => [StatisticPackage])
   async getStatisticPackages() {
     return this.userService.getStatisticPackages();
+  }
+
+  @Query(() => SystemOverviews)
+  async getSystemOverviews(): Promise<SystemOverviews> {
+    const promises = [
+  this.userService.userRepository.count(),
+  this.transactionService.transactionRepository.count(),
+  this.computerService.computerRepository.count(),
+  this.transactionService.transactionRepository.createQueryBuilder('transaction')
+    .select('CAST(SUM(transaction.amount) AS INTEGER)', 'totalIncome')
+    .where('transaction.status = :status', { status: 'success' })
+    .getRawOne()
+    .then(({ totalIncome }) => (totalIncome)) ,
+  this.userService.userRepository.createQueryBuilder('user')
+    .select('CAST(SUM(user.storageUsed) AS INTEGER)', 'totalSpaceUsed')
+    .getRawOne()
+    .then(({ totalSpaceUsed }) => (totalSpaceUsed)),
+  check('/').then(({ free }) => (free))
+];
+
+const [
+  totalUsers,
+  totalTransactions,
+  totalComputers,
+  totalIncome,
+  totalSpaceUsed,
+  free
+] = await Promise.all(promises);
+
+    return {
+      totalUsers,
+      totalTransactions,
+      totalComputers,
+      totalIncome,
+      storagePercentage: {
+        used: totalSpaceUsed,
+        total: free + totalSpaceUsed,
+      },
+    };
   }
 }

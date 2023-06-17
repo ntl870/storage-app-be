@@ -11,7 +11,7 @@ import { PackagesService } from '@modules/packages/packages.service';
 
 @Injectable()
 export class UserService {
-  userRepository: Repository<User>;
+  public userRepository: Repository<User>;
 
   constructor(
     @Inject(forwardRef(() => FoldersService))

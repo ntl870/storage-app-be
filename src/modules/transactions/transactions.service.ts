@@ -37,12 +37,10 @@ export class TransactionsService {
   async getStatisticTransactions(dateFrom: string, dateTo: string): Promise<StatisticTransaction[]> {
     //check if dateTo - dateFrom > 45 days, group by date, else group by month
     const diffDay = moment.duration(moment(dateTo).diff(moment(dateFrom))).asDays();
-    console.log('diffDay: ', diffDay);
     let groupBy ='YYYY-MM-DD';
     if (diffDay > 45) {
       groupBy = 'YYYY-MM';
     }
-    console.log('groupBy: ', groupBy);
     // Define an array with value 0
     const startAt = moment(dateFrom).startOf('day').format('YYYY-MM-DD HH:mm:ss');
     const endAt = moment(dateTo).endOf('day').format('YYYY-MM-DD HH:mm:ss');
