@@ -55,6 +55,10 @@ export class User extends BaseEntity {
   @Column()
   stripeCustomerID?: string;
 
+  @Field({ nullable: true})
+  @Column({ default: false, nullable: true})
+  isAdmin?: boolean;
+
   @Field(() => [Computer], { nullable: true })
   @OneToMany(() => Computer, (computer) => computer.user)
   @JoinColumn()

@@ -13,7 +13,7 @@ export class StripePaymentService {
     @Inject(STRIPE_PROVIDER) private readonly stripe: Stripe,
     private readonly userService: UserService,
     private readonly packagesService: PackagesService,
-    private readonly transactionService: TransactionsService
+    private readonly transactionService: TransactionsService,
   ) {}
 
   async createCheckoutSession(packageId: number, userId: number) {
@@ -35,12 +35,13 @@ export class StripePaymentService {
     if (!packageData) {
       throw new Error('Package not found');
     }
-    const transaction = await this.transactionService.transactionRepository.save({
-      userId: user.ID.toString(),
-      packageId: packageData.ID,
-      status: TRANSACTION_STATUS.PENDING,
-      amount: packageData.price
-    })
+    const transaction =
+      await this.transactionService.transactionRepository.save({
+        userId: user.ID.toString(),
+        packageId: packageData.ID,
+        status: TRANSACTION_STATUS.PENDING,
+        amount: packageData.price,
+      });
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -63,7 +64,7 @@ export class StripePaymentService {
         userId: user.ID,
         packageId,
         packageName: packageData.name,
-        transactionId: transaction.ID
+        transactionId: transaction.ID,
       },
     });
 
@@ -78,11 +79,12 @@ export class StripePaymentService {
     );
     user.currentPackage = pkg;
     await user.save();
-    const transaction = await this.transactionService.transactionRepository.findOne({
-      where: {
-        ID: session.metadata.transactionId
-      }
-    })
+    const transaction =
+      await this.transactionService.transactionRepository.findOne({
+        where: {
+          ID: session.metadata.transactionId,
+        },
+      });
     transaction.status = TRANSACTION_STATUS.SUCCESS;
     transaction.stripeTransactionId = session.payment_intent;
     await transaction.save();
@@ -90,11 +92,12 @@ export class StripePaymentService {
 
   async rejectPaymentIntent(webhookData: any) {
     const session = webhookData.data.object;
-    const transaction = await this.transactionService.transactionRepository.findOne({
-      where: {
-        ID: session.metadata.transactionId
-      }
-    })
+    const transaction =
+      await this.transactionService.transactionRepository.findOne({
+        where: {
+          ID: session.metadata.transactionId,
+        },
+      });
     transaction.status = TRANSACTION_STATUS.FAILED;
     await transaction.save();
   }

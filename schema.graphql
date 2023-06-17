@@ -72,6 +72,7 @@ type User {
   currentPackage: Package!
   storageUsed: Float!
   stripeCustomerID: String!
+  isAdmin: Boolean
   computers: [Computer!]
 }
 
@@ -104,6 +105,11 @@ type NewUserReturn {
   accessToken: String!
 }
 
+type StatisticTransaction {
+  amount: Float!
+  date: String!
+}
+
 type Query {
   getMe: User!
   getAllUsers: [User!]!
@@ -130,6 +136,7 @@ type Query {
   getStarredFiles: [File!]!
   getFileDetail(fileID: String!): File!
   getAllPackages: [Package!]!
+  getStatisticTransactions(dateFrom: String!, dateTo: String!): [StatisticTransaction!]!
   getComputerByMacAddress(macAddress: String!): Computer!
   getUserComputers: [Computer!]!
 }
