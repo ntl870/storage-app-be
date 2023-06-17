@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Req } from '@nestjs/common';
 import { StripePaymentService } from './stripe-payment.service';
 
-@Controller('stripe-webhook')
+@Controller('api/stripe-webhook')
 export class StripeWebhookController {
   constructor(
     private readonly stripePaymentService: StripePaymentService,
