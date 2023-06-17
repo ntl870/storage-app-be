@@ -42,7 +42,7 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   avatar: string;
 
-  @Field()
+  @Field({ nullable: true })
   @ManyToOne(() => Package, (pkg) => pkg)
   @JoinColumn()
   currentPackage: Package;

@@ -8,7 +8,7 @@ import { CurrentUser } from 'src/decorators/CurrentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from './user.entity';
 import { UserService } from './user.service';
-import { UpdateUserPayload, UserSearchPaginationResponse } from './user.type';
+import { StatisticPackage, UpdateUserPayload, UserSearchPaginationResponse } from './user.type';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -80,5 +80,10 @@ export class UserResolver {
     @Args('input') input: UpdateUserPayload,
   ) {
     return await this.userService.updateUserProfile(user.ID, input);
+  }
+
+  @Query(() => [StatisticPackage])
+  async getStatisticPackages() {
+    return this.userService.getStatisticPackages();
   }
 }

@@ -21,3 +21,13 @@ export class UpdateUserPayload {
   @Field(() => String)
   avatar: string;
 }
+
+
+@ObjectType()
+export class StatisticPackage {
+  @Field()
+  total: number;
+
+  @Field()
+  packages_name: string;
+}

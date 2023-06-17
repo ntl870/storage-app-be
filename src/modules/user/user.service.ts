@@ -6,7 +6,7 @@ import { User } from './user.entity';
 import { getFolderSize, hashPassword } from 'src/utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import * as fs from 'fs';
-import { UpdateUserPayload, UserSearchPaginationResponse } from './user.type';
+import { StatisticPackage, UpdateUserPayload, UserSearchPaginationResponse } from './user.type';
 import { PackagesService } from '@modules/packages/packages.service';
 
 @Injectable()
@@ -133,5 +133,17 @@ export class UserService {
     user.name = input.name;
     user.avatar = input.avatar;
     return await this.save(user);
+  }
+
+  async getStatisticPackages(): Promise<StatisticPackage[]> {
+    // group by currentPackage
+    const grouped = await this.userRepository.createQueryBuilder('user')
+      .select('user.currentPackage')
+      .addSelect('CAST(COUNT(user.currentPackage) AS INTEGER) as total')
+      .innerJoinAndSelect('user.currentPackage', 'packages')
+      .groupBy('packages.name, packages.ID, user.currentPackage')
+      .orderBy('packages.ID', 'ASC')
+      .getRawMany();
+    return grouped;
   }
 }

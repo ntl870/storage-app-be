@@ -69,7 +69,7 @@ type User {
   password: String!
   rootFolder: Folder
   avatar: String
-  currentPackage: Package!
+  currentPackage: Package
   storageUsed: Float!
   stripeCustomerID: String!
   isAdmin: Boolean
@@ -99,6 +99,11 @@ type UserSearchPaginationResponse {
   total: Float!
 }
 
+type StatisticPackage {
+  total: Float!
+  packages_name: String!
+}
+
 type NewUserReturn {
   name: String!
   email: String!
@@ -118,6 +123,7 @@ type Query {
   getUserFiles: [File!]!
   getUsersBySearchPagination(search: String!, page: Float!, limit: Float!): UserSearchPaginationResponse!
   getUsersPagination(page: Float!, limit: Float!): UserSearchPaginationResponse!
+  getStatisticPackages: [StatisticPackage!]!
   getUserTrashFolder: [Folder!]!
   getArrayOfRootFoldersName(folderID: String!): [Folder!]!
   getPeopleWithAccessToFolder(folderID: String!): PeopleWithAccessResponse!
