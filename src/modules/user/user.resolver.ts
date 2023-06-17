@@ -6,6 +6,7 @@ import { UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from 'src/decorators/CurrentUser';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { ComputersService } from '../computers/computers.service';
 import { User } from './user.entity';
 import { UserService } from './user.service';
 import { StatisticPackage, UpdateUserPayload, UserSearchPaginationResponse } from './user.type';
@@ -16,6 +17,7 @@ export class UserResolver {
     private readonly userService: UserService,
     private readonly folderService: FoldersService,
     private readonly fileService: FilesService,
+    private readonly computerService: ComputersService
   ) {}
 
   @UseGuards(JwtAuthGuard)

@@ -99,6 +99,7 @@ export class UserService {
       where: [{ email: Like(`%${search}%`) }, { name: Like(`%${search}%`) }],
       skip: (page - 1) * limit,
       take: limit,
+      relations: ['currentPackage']
     });
 
     const hasMore = (page + 1) * limit < total;
