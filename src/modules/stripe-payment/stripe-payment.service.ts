@@ -35,12 +35,12 @@ export class StripePaymentService {
     if (!packageData) {
       throw new Error('Package not found');
     }
-    const transaction = await this.transactionService.transactionRepository.create({
+    const transaction = await this.transactionService.transactionRepository.save({
       userId: user.ID.toString(),
       packageId: packageData.ID,
-      status: TRANSACTION_STATUS.PENDING
+      status: TRANSACTION_STATUS.PENDING,
+      amount: packageData.price
     })
-
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -78,7 +78,6 @@ export class StripePaymentService {
     );
     user.currentPackage = pkg;
     await user.save();
-    console.log(user);
     const transaction = await this.transactionService.transactionRepository.findOne({
       where: {
         ID: session.metadata.transactionId
@@ -86,7 +85,6 @@ export class StripePaymentService {
     })
     transaction.status = TRANSACTION_STATUS.SUCCESS;
     transaction.stripeTransactionId = session.payment_intent;
-    console.log(transaction);
     await transaction.save();
   }
 
