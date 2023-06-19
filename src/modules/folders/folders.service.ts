@@ -816,14 +816,15 @@ export class FoldersService {
     }
   }
 
-  async searchFilesAndFolders(search: string) {
+  async searchFilesAndFolders(userID: string, search: string) {
     try {
       const folders = await this.folderRepository.find({
         where: {
           name: Like(`%${search}%`),
+          ownerID: userID,
         },
       });
-      const files = await this.fileService.searchFiles(search);
+      const files = await this.fileService.searchFiles(userID, search);
       return {
         folders,
         files,

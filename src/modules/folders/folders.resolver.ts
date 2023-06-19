@@ -246,8 +246,11 @@ export class FoldersResolver {
 
   @UseGuards(JwtAuthGuard)
   @Query(() => SearchFilesAndFoldersResponse)
-  async searchFilesAndFolders(@Args('search') search: string) {
-    return await this.folderService.searchFilesAndFolders(search);
+  async searchFilesAndFolders(
+    @CurrentUser() user: User,
+    @Args('search') search: string,
+  ) {
+    return await this.folderService.searchFilesAndFolders(user.ID, search);
   }
 
   @UseGuards(JwtAuthGuard)

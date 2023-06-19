@@ -128,13 +128,21 @@ type NewUserReturn {
   accessToken: String!
 }
 
+type CheckoutSession {
+  id: String!
+}
+
 type Query {
   getMe: User!
   getAllUsers: [User!]!
   getUserByID(ID: String!): User!
   getFoldersOfFolder(folderID: String!): [Folder!]!
   getUserFiles: [File!]!
-  getUsersBySearchPagination(search: String!, page: Float!, limit: Float!): UserSearchPaginationResponse!
+  getUsersBySearchPagination(
+    search: String!
+    page: Float!
+    limit: Float!
+  ): UserSearchPaginationResponse!
   getUsersPagination(page: Float!, limit: Float!): UserSearchPaginationResponse!
   getStatisticPackages: [StatisticPackage!]!
   getSystemOverviews: SystemOverviews!
@@ -143,7 +151,11 @@ type Query {
   getPeopleWithAccessToFolder(folderID: String!): PeopleWithAccessResponse!
   getUserSharedFolders: [Folder!]!
   getStarredFolders: [Folder!]!
-  getAllUserFoldersPagination(search: String!, page: Float!, limit: Float!): GetFoldersByOwnerIDPaginationResponse!
+  getAllUserFoldersPagination(
+    search: String!
+    page: Float!
+    limit: Float!
+  ): GetFoldersByOwnerIDPaginationResponse!
   searchFilesAndFolders(search: String!): SearchFilesAndFoldersResponse!
   getFolderDetail(folderID: String!): Folder!
   getAllFilesAndFoldersOfUser: SearchFilesAndFoldersResponse!
@@ -156,9 +168,13 @@ type Query {
   getStarredFiles: [File!]!
   getFileDetail(fileID: String!): File!
   getAllPackages: [Package!]!
+  getCheckoutSessions: CheckoutSession!
   getComputerByMacAddress(macAddress: String!): Computer!
   getUserComputers: [Computer!]!
-  getStatisticTransactions(dateFrom: String!, dateTo: String!): [StatisticTransaction!]!
+  getStatisticTransactions(
+    dateFrom: String!
+    dateTo: String!
+  ): [StatisticTransaction!]!
 }
 
 type Mutation {
@@ -170,11 +186,25 @@ type Mutation {
   moveFolderToTrash(folderID: String!): String!
   moveFolderOutOfTrash(folderID: String!): String!
   deleteFolder(folderID: String!): String!
-  addSharedUserToFolder(folderID: String!, sharedUserIDs: [String!]!, shouldSendMail: Boolean!, userMessage: String): String!
-  addUserToFolderReadOnlyUsers(folderID: String!, readOnlyUserIDs: [String!]!, shouldSendMail: Boolean!, userMessage: String): String!
+  addSharedUserToFolder(
+    folderID: String!
+    sharedUserIDs: [String!]!
+    shouldSendMail: Boolean!
+    userMessage: String
+  ): String!
+  addUserToFolderReadOnlyUsers(
+    folderID: String!
+    readOnlyUserIDs: [String!]!
+    shouldSendMail: Boolean!
+    userMessage: String
+  ): String!
   setGeneralFolderAccess(folderID: String!, isPublic: Boolean!): String!
   removeUserFromFolder(folderID: String!, targetUserID: String!): String!
-  changeUserRoleInFolder(folderID: String!, targetUserID: String!, targetRole: String!): String!
+  changeUserRoleInFolder(
+    folderID: String!
+    targetUserID: String!
+    targetRole: String!
+  ): String!
   emptyUserTrash: String!
   starFolder(folderID: String!): String!
   unstarFolder(folderID: String!): String!
@@ -185,9 +215,23 @@ type Mutation {
   moveFileToTrash(fileID: String!): File!
   restoreFileFromTrash(fileID: String!): File!
   deleteFile(fileID: String!): String!
-  addUsersToReadonlyFile(fileID: String!, readonlyUserIDs: [String!]!, shouldSendMail: Boolean!, userMessage: String): String!
-  addUsersToSharedUserFile(fileID: String!, sharedUserIDs: [String!]!, shouldSendMail: Boolean!, userMessage: String): String!
-  changeUserRoleInFile(fileID: String!, targetUserID: String!, targetRole: String!): String!
+  addUsersToReadonlyFile(
+    fileID: String!
+    readonlyUserIDs: [String!]!
+    shouldSendMail: Boolean!
+    userMessage: String
+  ): String!
+  addUsersToSharedUserFile(
+    fileID: String!
+    sharedUserIDs: [String!]!
+    shouldSendMail: Boolean!
+    userMessage: String
+  ): String!
+  changeUserRoleInFile(
+    fileID: String!
+    targetUserID: String!
+    targetRole: String!
+  ): String!
   removeUserFromFile(fileID: String!, targetUserID: String!): String!
   setGeneralAccessOfFile(fileID: String!, isPublic: Boolean!): String!
   starFile(fileID: String!): String!
@@ -198,7 +242,10 @@ type Mutation {
   bulkCreatePackages: String!
   connectComputer(input: ConnectComputerInput!): Computer!
   removeComputer(macAddress: String!): String!
-  updateComputerStoragePath(macAddress: String!, storagePath: String!): Computer!
+  updateComputerStoragePath(
+    macAddress: String!
+    storagePath: String!
+  ): Computer!
   createCheckoutSession(packageId: Float!): String!
 }
 
@@ -223,7 +270,9 @@ input UploadFolder {
   name: String!
 }
 
-"""The `Upload` scalar type represents a file upload."""
+"""
+The `Upload` scalar type represents a file upload.
+"""
 scalar Upload
 
 input ConnectComputerInput {

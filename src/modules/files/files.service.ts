@@ -698,11 +698,12 @@ export class FilesService {
     return 'Move file to folder successfully';
   }
 
-  async searchFiles(search: string) {
+  async searchFiles(userID: string, search: string) {
     try {
       const files = await this.fileRepository.find({
         where: {
           name: Like(`%${search}%`),
+          ownerID: userID,
         },
       });
       return files;

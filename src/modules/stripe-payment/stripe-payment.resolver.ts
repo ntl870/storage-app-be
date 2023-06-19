@@ -1,9 +1,9 @@
-import { ParseIntPipe, UseGuards } from '@nestjs/common';
-import { StripePaymentService } from './stripe-payment.service';
-import { JwtAuthGuard } from '@modules/auth/guards/jwt.guard';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { CurrentUser } from '@decorators/CurrentUser';
+import { JwtAuthGuard } from '@modules/auth/guards/jwt.guard';
 import { User } from '@modules/user/user.entity';
+import { ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { StripePaymentService } from './stripe-payment.service';
 
 @Resolver()
 export class StripePaymentResolver {
@@ -19,5 +19,11 @@ export class StripePaymentResolver {
       packageId,
       +user.ID,
     );
+  }
+
+  // @UseGuards(JwtAuthGuard)
+  @Query(() => String)
+  async getCheckoutSessions() {
+    return await this.stripePaymentService.getAllStripePayments();
   }
 }
