@@ -20,10 +20,4 @@ export class StripePaymentResolver {
       +user.ID,
     );
   }
-
-  // @UseGuards(JwtAuthGuard)
-  @Query(() => String)
-  async getCheckoutSessions() {
-    return await this.stripePaymentService.getAllStripePayments();
-  }
 }
