@@ -331,6 +331,7 @@ export class FoldersService {
     sharedUserID: string[],
     shouldSendMail: boolean,
     userMessage: string,
+    sentMail?: boolean,
   ) {
     try {
       const folder = await this.getFolderByIDWithRelations(folderID, [
@@ -357,7 +358,7 @@ export class FoldersService {
           throw ErrorException.badRequest('User already added');
         }
 
-        if (shouldSendMail) {
+        if (shouldSendMail && !sentMail) {
           const folderUrl = `${getEnvVar(
             EnvVar.FRONT_END_URL,
           )}/folder/${folderID}`;
@@ -385,6 +386,7 @@ export class FoldersService {
           sharedUserID,
           shouldSendMail,
           userMessage,
+          true,
         );
       }
 
