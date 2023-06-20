@@ -78,6 +78,7 @@ export const getFileType = (url: string) => {
     case 'swift':
     case 'cs':
     case 'ts':
+    case 'tsx':
       return 'text';
     default:
       return 'unknown';
