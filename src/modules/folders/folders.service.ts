@@ -379,15 +379,17 @@ export class FoldersService {
       });
 
       // Recursively add user to subfolders
-      for (const subFolder of folder.subFolders) {
-        await this.addUserToFolderSharedUsers(
-          userID,
-          subFolder.ID,
-          sharedUserID,
-          shouldSendMail,
-          userMessage,
-          true,
-        );
+      if (!folder.subFolders.length) {
+        for (const subFolder of folder.subFolders) {
+          await this.addUserToFolderSharedUsers(
+            userID,
+            subFolder.ID,
+            sharedUserID,
+            shouldSendMail,
+            userMessage,
+            true,
+          );
+        }
       }
 
       await this.folderRepository.save(folder);
@@ -404,6 +406,7 @@ export class FoldersService {
     readonlyUserIDs: string[],
     shouldSendMail: boolean,
     userMessage: string,
+    sentMail?: boolean,
   ) {
     try {
       const folder = await this.getFolderByID(folderID);
@@ -427,7 +430,7 @@ export class FoldersService {
           throw ErrorException.badRequest('User already added');
         }
 
-        if (shouldSendMail) {
+        if (shouldSendMail && !sentMail) {
           const folderUrl = `${getEnvVar(
             EnvVar.FRONT_END_URL,
           )}/file/${folderID}`;
@@ -447,14 +450,17 @@ export class FoldersService {
         }
       });
 
-      for (const subFolder of folder.subFolders) {
-        await this.addUserToFolderReadOnlyUsers(
-          userID,
-          subFolder.ID,
-          readonlyUserIDs,
-          shouldSendMail,
-          userMessage,
-        );
+      if (folder.subFolders.length) {
+        for (const subFolder of folder.subFolders) {
+          await this.addUserToFolderReadOnlyUsers(
+            userID,
+            subFolder.ID,
+            readonlyUserIDs,
+            shouldSendMail,
+            userMessage,
+            true,
+          );
+        }
       }
       await this.folderRepository.save(folder);
 
