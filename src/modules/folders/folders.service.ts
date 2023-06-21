@@ -379,7 +379,7 @@ export class FoldersService {
       });
 
       // Recursively add user to subfolders
-      if (!folder.subFolders.length) {
+      if (folder?.subFolders?.length) {
         for (const subFolder of folder.subFolders) {
           await this.addUserToFolderSharedUsers(
             userID,
@@ -450,7 +450,7 @@ export class FoldersService {
         }
       });
 
-      if (folder.subFolders.length) {
+      if (folder?.subFolders?.length) {
         for (const subFolder of folder.subFolders) {
           await this.addUserToFolderReadOnlyUsers(
             userID,
