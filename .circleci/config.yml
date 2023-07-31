@@ -12,10 +12,10 @@ workflows:
   version: 2
   build_and_deploy:
     jobs:
-      - node/install
+      - install
       - build:
           requires:
-            - node/install
+            - install
       - start:
           requires:
             - build
