@@ -1,5 +1,10 @@
 version: 2.1
 
+executors:
+  default:
+    docker:
+      - image: circleci/node:18
+
 orbs:
   node: circleci/node@4.7
 
@@ -17,12 +22,13 @@ workflows:
 
 jobs:
   node/install:
-    executor: node/default
+    executor: default # Use the defined executor for this job
     steps:
       - checkout
+      - node/install-packages # Use the node orb's pre-built command to install dependencies
 
   build:
-    executor: node/default
+    executor: default # Use the defined executor for this job
     steps:
       - checkout
       - run:
@@ -30,7 +36,7 @@ jobs:
           command: yarn build
 
   start:
-    executor: node/default
+    executor: default # Use the defined executor for this job
     steps:
       - checkout
       - run:
