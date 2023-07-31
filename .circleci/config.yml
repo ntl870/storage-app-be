@@ -21,12 +21,13 @@ workflows:
             - build
 
 jobs:
-  node/install:
+  install:
     executor: default # Use the defined executor for this job
     steps:
       - checkout
-      - node/install-packages # Use the node orb's pre-built command to install dependencies
-
+      - run:
+          name: Install
+          command: yarn
   build:
     executor: default # Use the defined executor for this job
     steps:
