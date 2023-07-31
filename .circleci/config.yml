@@ -10,32 +10,25 @@ orbs:
 
 workflows:
   version: 2
-  build_and_deploy:
+  CI/CD:
     jobs:
-      - install
-      - build
-      - start
+      - build_and_deploy:
+          filters:
+            branches:
+              only:
+                - main
 
 jobs:
-  install:
-    executor: default # Use the defined executor for this job
+  build_and_deploy:
+    executor: default
     steps:
       - checkout
       - run:
-          name: Install
+          name: Install Dependencies
           command: yarn
-  build:
-    executor: default # Use the defined executor for this job
-    steps:
-      - checkout
       - run:
           name: Build
-          command: yarn global add @nestjs/cli && yarn build
-
-  start:
-    executor: default # Use the defined executor for this job
-    steps:
-      - checkout
+          command: yarn build
       - run:
-          name: Start prod
+          name: Start
           command: yarn start:prod
