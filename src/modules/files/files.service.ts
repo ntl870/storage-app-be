@@ -124,7 +124,7 @@ export class FilesService {
   }
 
   async saveFileToStorageRestful(
-    file: Express.Multer.File,
+    file: any,
     userID: string,
     rootFolderID: string,
   ) {

@@ -39,7 +39,7 @@ export class FoldersController {
   )
   async uploadFolder(
     @Request() req,
-    @UploadedFiles() files: Array<Express.Multer.File>,
+    @UploadedFiles() files: any,
     @Query('folderID') folderID: string,
   ) {
     const input = {

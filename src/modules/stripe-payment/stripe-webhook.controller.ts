@@ -3,14 +3,10 @@ import { StripePaymentService } from './stripe-payment.service';
 
 @Controller('api/stripe-webhook')
 export class StripeWebhookController {
-  constructor(
-    private readonly stripePaymentService: StripePaymentService,
-  ) {}
+  constructor(private readonly stripePaymentService: StripePaymentService) {}
 
   @Post()
-  async stripeWebhook(
-    @Body() body: any,
-  ) {
+  async stripeWebhook(@Body() body: any) {
     console.log('stripe-webhook.controller.ts: ', body);
     switch (body.type) {
       case 'checkout.session.completed': {

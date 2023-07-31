@@ -178,7 +178,7 @@ export const copyFileSync = (
   writeFileSync(`${process.cwd()}/${destinationFilePath}`, fileContent);
 };
 
-export const groupFilesByFolder = (files: Array<Express.Multer.File>) => {
+export const groupFilesByFolder = (files: any) => {
   const folders = [];
 
   for (const file of files) {

@@ -14,6 +14,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { FilesService } from './files.service';
+import 'multer';
 
 @Controller('/api/files')
 export class FilesController {
@@ -34,7 +35,7 @@ export class FilesController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @Request() req,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: any,
     @Query('folderID') folderID: string,
   ) {
     return await this.filesService.saveFileToStorageRestful(
