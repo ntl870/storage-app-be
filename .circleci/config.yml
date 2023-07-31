@@ -27,7 +27,7 @@ jobs:
       - checkout
       - run:
           name: Install
-          command: yarn
+          command: yarn global add @nestjs/cli && yarn
   build:
     executor: default # Use the defined executor for this job
     steps:
