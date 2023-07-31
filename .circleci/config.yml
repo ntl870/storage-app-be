@@ -3,7 +3,7 @@ version: 2.1
 executors:
   default:
     docker:
-      - image: circleci/node:18.17.0
+      - image: cimg/node:20.5.0
 
 orbs:
   node: circleci/node@4.7
