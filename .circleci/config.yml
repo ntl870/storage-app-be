@@ -13,12 +13,8 @@ workflows:
   build_and_deploy:
     jobs:
       - install
-      - build:
-          requires:
-            - install
-      - start:
-          requires:
-            - build
+      - build
+      - start
 
 jobs:
   install:
