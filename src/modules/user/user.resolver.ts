@@ -10,7 +10,6 @@ import { ComputersService } from '../computers/computers.service';
 import { TransactionsService } from '../transactions/transactions.service';
 import { User } from './user.entity';
 import { UserService } from './user.service';
-import { check } from 'diskusage';
 import {
   StatisticPackage,
   SystemOverviews,
@@ -100,29 +99,30 @@ export class UserResolver {
   @Query(() => SystemOverviews)
   async getSystemOverviews(): Promise<SystemOverviews> {
     const promises = [
-  this.userService.userRepository.count(),
-  this.transactionService.transactionRepository.count(),
-  this.computerService.computerRepository.count(),
-  this.transactionService.transactionRepository.createQueryBuilder('transaction')
-    .select('CAST(SUM(transaction.amount) AS INTEGER)', 'totalIncome')
-    .where('transaction.status = :status', { status: 'success' })
-    .getRawOne()
-    .then(({ totalIncome }) => (totalIncome)) ,
-  this.userService.userRepository.createQueryBuilder('user')
-    .select('CAST(SUM(user.storageUsed) AS INTEGER)', 'totalSpaceUsed')
-    .getRawOne()
-    .then(({ totalSpaceUsed }) => (totalSpaceUsed)),
-  check('/').then(({ free }) => (free))
-];
+      this.userService.userRepository.count(),
+      this.transactionService.transactionRepository.count(),
+      this.computerService.computerRepository.count(),
+      this.transactionService.transactionRepository
+        .createQueryBuilder('transaction')
+        .select('CAST(SUM(transaction.amount) AS INTEGER)', 'totalIncome')
+        .where('transaction.status = :status', { status: 'success' })
+        .getRawOne()
+        .then(({ totalIncome }) => totalIncome),
+      this.userService.userRepository
+        .createQueryBuilder('user')
+        .select('CAST(SUM(user.storageUsed) AS INTEGER)', 'totalSpaceUsed')
+        .getRawOne()
+        .then(({ totalSpaceUsed }) => totalSpaceUsed),
+    ];
 
-const [
-  totalUsers,
-  totalTransactions,
-  totalComputers,
-  totalIncome,
-  totalSpaceUsed,
-  free
-] = await Promise.all(promises);
+    const [
+      totalUsers,
+      totalTransactions,
+      totalComputers,
+      totalIncome,
+      totalSpaceUsed,
+      free,
+    ] = await Promise.all(promises);
 
     return {
       totalUsers,

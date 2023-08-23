@@ -23,7 +23,7 @@ import { ComputersModule } from '@modules/computers/computers.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       typePaths: ['./**/*.graphql'],
       driver: ApolloDriver,
-      autoSchemaFile: 'schema.graphql',
+      // autoSchemaFile: 'schema.graphql',
     }),
     JwtModule.register({
       secret: getEnvVar(EnvVar.JWT_SECRET),

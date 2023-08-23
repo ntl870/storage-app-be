@@ -1,12 +1,16 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
-import { getRepository } from 'src/db/db';
+import { DB } from 'src/db/db';
 import { In, Like, Repository } from 'typeorm';
 import { NewUserInput } from '../auth/auth.types';
 import { User } from './user.entity';
 import { getFolderSize, hashPassword } from 'src/utils/tools';
 import { FoldersService } from '@modules/folders/folders.service';
 import * as fs from 'fs';
-import { StatisticPackage, UpdateUserPayload, UserSearchPaginationResponse } from './user.type';
+import {
+  StatisticPackage,
+  UpdateUserPayload,
+  UserSearchPaginationResponse,
+} from './user.type';
 import { PackagesService } from '@modules/packages/packages.service';
 
 @Injectable()
@@ -19,7 +23,7 @@ export class UserService {
     @Inject(forwardRef(() => PackagesService))
     private readonly packageService: PackagesService,
   ) {
-    this.userRepository = getRepository(User);
+    this.userRepository = DB.getInstance().getRepository(User);
   }
 
   async create(
@@ -61,7 +65,6 @@ export class UserService {
     });
     return user;
   }
-
   async getAllUsers(): Promise<User[]> {
     const users = await this.userRepository.find();
     return users;
@@ -99,7 +102,7 @@ export class UserService {
       where: [{ email: Like(`%${search}%`) }, { name: Like(`%${search}%`) }],
       skip: (page - 1) * limit,
       take: limit,
-      relations: ['currentPackage']
+      relations: ['currentPackage'],
     });
 
     const hasMore = (page + 1) * limit < total;
@@ -138,7 +141,8 @@ export class UserService {
 
   async getStatisticPackages(): Promise<StatisticPackage[]> {
     // group by currentPackage
-    const grouped = await this.userRepository.createQueryBuilder('user')
+    const grouped = await this.userRepository
+      .createQueryBuilder('user')
       .select('user.currentPackage')
       .addSelect('CAST(COUNT(user.currentPackage) AS INTEGER) as total')
       .innerJoinAndSelect('user.currentPackage', 'packages')

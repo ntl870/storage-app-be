@@ -1,4 +1,4 @@
-import { getRepository } from '@db/db';
+import { DB } from '@db/db';
 import { File } from '@modules/files/files.entity';
 import { Folder } from '@modules/folders/folders.entity';
 import { FoldersService } from '@modules/folders/folders.service';
@@ -38,7 +38,7 @@ export class FilesService {
     private readonly userService: UserService,
     private readonly mailService: MailService,
   ) {
-    this.fileRepository = getRepository(File);
+    this.fileRepository = DB.getInstance().getRepository(File);
   }
 
   canModify(userID: string, file: File) {

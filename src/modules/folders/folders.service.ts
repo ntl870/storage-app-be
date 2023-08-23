@@ -1,4 +1,4 @@
-import { getRepository } from '@db/db';
+import { DB } from '@db/db';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Like, Repository } from 'typeorm';
 import { Folder } from './folders.entity';
@@ -35,7 +35,7 @@ export class FoldersService {
     private readonly userService: UserService,
     private readonly mailService: MailService,
   ) {
-    this.folderRepository = getRepository(Folder);
+    this.folderRepository = DB.getInstance().getRepository(Folder);
   }
 
   canModify(userID: string, folder: Folder) {

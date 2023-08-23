@@ -6,7 +6,7 @@ import Stripe from 'stripe';
 import * as moment from 'moment';
 import { Repository } from 'typeorm';
 import * as _ from 'lodash';
-import { getRepository } from '../../db/db';
+import { DB } from '../../db/db';
 import { Transaction } from './entities/transaction.entity';
 import { StatisticTransaction } from './transactions.types';
 
@@ -18,7 +18,7 @@ export class TransactionsService {
     private readonly userService: UserService,
     private readonly packagesService: PackagesService,
   ) {
-    this.transactionRepository = getRepository(Transaction);
+    this.transactionRepository = DB.getInstance().getRepository(Transaction);
   }
 
   async getTransactionByCheckoutId(checkoutId: string) {
@@ -34,15 +34,22 @@ export class TransactionsService {
     }
   }
 
-  async getStatisticTransactions(dateFrom: string, dateTo: string): Promise<StatisticTransaction[]> {
+  async getStatisticTransactions(
+    dateFrom: string,
+    dateTo: string,
+  ): Promise<StatisticTransaction[]> {
     //check if dateTo - dateFrom > 45 days, group by date, else group by month
-    const diffDay = moment.duration(moment(dateTo).diff(moment(dateFrom))).asDays();
-    let groupBy ='YYYY-MM-DD';
+    const diffDay = moment
+      .duration(moment(dateTo).diff(moment(dateFrom)))
+      .asDays();
+    let groupBy = 'YYYY-MM-DD';
     if (diffDay > 45) {
       groupBy = 'YYYY-MM';
     }
     // Define an array with value 0
-    const startAt = moment(dateFrom).startOf('day').format('YYYY-MM-DD HH:mm:ss');
+    const startAt = moment(dateFrom)
+      .startOf('day')
+      .format('YYYY-MM-DD HH:mm:ss');
     const endAt = moment(dateTo).endOf('day').format('YYYY-MM-DD HH:mm:ss');
     let arr = [];
     if (groupBy === 'YYYY-MM-DD') {
@@ -66,14 +73,18 @@ export class TransactionsService {
 
     const transactions = await this.transactionRepository
       .createQueryBuilder('transaction')
-    .select(`TO_CHAR(transaction.createdDate, '${groupBy}')`, 'date')
-    .addSelect('CAST(SUM(transaction.amount) AS INTEGER)', 'amount')
-    .groupBy(`TO_CHAR(transaction.createdDate, '${groupBy}')`)
-    .orderBy(`TO_CHAR(transaction.createdDate, '${groupBy}')`, 'ASC');
+      .select(`TO_CHAR(transaction.createdDate, '${groupBy}')`, 'date')
+      .addSelect('CAST(SUM(transaction.amount) AS INTEGER)', 'amount')
+      .groupBy(`TO_CHAR(transaction.createdDate, '${groupBy}')`)
+      .orderBy(`TO_CHAR(transaction.createdDate, '${groupBy}')`, 'ASC');
 
     if (startAt && endAt) {
-      transactions.andWhere('transaction.createdDate >= :dateFrom', { dateFrom: startAt });
-      transactions.andWhere('transaction.createdDate <= :dateTo', { dateTo: endAt });
+      transactions.andWhere('transaction.createdDate >= :dateFrom', {
+        dateFrom: startAt,
+      });
+      transactions.andWhere('transaction.createdDate <= :dateTo', {
+        dateTo: endAt,
+      });
     }
 
     const data = await transactions.getRawMany();

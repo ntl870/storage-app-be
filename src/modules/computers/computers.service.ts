@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Computer } from './computers.entity';
-import { getRepository } from '@db/db';
+import { DB } from '@db/db';
 import { ConnectComputerInput } from './computers.type';
 import { UserService } from '@modules/user/user.service';
 
@@ -10,7 +10,7 @@ export class ComputersService {
   computerRepository: Repository<Computer>;
 
   constructor(private readonly userService: UserService) {
-    this.computerRepository = getRepository(Computer);
+    this.computerRepository = DB.getInstance().getRepository(Computer);
   }
 
   async createComputer(computer: Computer): Promise<Computer> {
