@@ -10,7 +10,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "dev:sls": "nest build && sls offline",
-    "deploy:sls": "nest build && sls deploy",
+    "deploy:sls": "export AWS_PROFILE=Local && nest build && sls deploy",
     "dev": "nest start --watch",
     "debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -55,6 +55,7 @@
     "pg": "^8.9.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "serverless-plugin-typescript": "^2.1.5",
     "stripe": "^12.2.0",
     "typeorm": "^0.3.11"
   },

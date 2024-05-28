@@ -17,6 +17,7 @@ export class DB {
   private static instance: DB;
   private appDataSource!: DataSource;
   private connectionOptions: DataSourceOptions = {
+    // url: getEnvVar(EnvVar.DATABASE_URL),
     type: 'postgres',
     host: getEnvVar(EnvVar.DB_HOST),
     port: Number(getEnvVar(EnvVar.DB_PORT)),

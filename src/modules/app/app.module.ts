@@ -17,11 +17,14 @@ import { StripePaymentModule } from '@modules/stripe-payment/stripe-payment.modu
 import { PackagesModule } from '@modules/packages/packages.module';
 import { TransactionsModule } from '@modules/transactions/transactions.module';
 import { ComputersModule } from '@modules/computers/computers.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       typePaths: ['./**/*.graphql'],
+      playground: true,
+      introspection: true,
       driver: ApolloDriver,
       // autoSchemaFile: 'schema.graphql',
     }),
@@ -41,7 +44,7 @@ import { ComputersModule } from '@modules/computers/computers.module';
     TransactionsModule,
     ComputersModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [AppService, JwtService, JwtStrategy],
 })
 export class AppModule {}
